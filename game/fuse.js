@@ -4,7 +4,7 @@ const {
   WebIndexPlugin,
   QuantumPlugin,
   CSSResourcePlugin,
-  CSSPlugin
+  CSSPlugin,
 } = require("fuse-box");
 context(
   class {
@@ -13,18 +13,19 @@ context(
         homeDir: "src",
         target: "browser@es6",
         output: "dist/$name.js",
+        sourceMaps: !this.isProduction,
         plugins: [
           [CSSResourcePlugin(), CSSPlugin()],
           this.isProduction &&
             QuantumPlugin({
               uglify: true,
               treeshake: true,
-              bakeApiIntoBundle: "app"
+              bakeApiIntoBundle: "app",
             }),
           WebIndexPlugin({
-            path: "."
-          })
-        ]
+            path: ".",
+          }),
+        ],
       });
     }
   }
