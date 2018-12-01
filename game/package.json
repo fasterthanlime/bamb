@@ -18,5 +18,17 @@
   "bugs": {
     "url": "https://github.com/fasterthanlime/ld43/issues"
   },
-  "homepage": "https://github.com/fasterthanlime/ld43#readme"
+  "homepage": "https://github.com/fasterthanlime/ld43#readme",
+  "devDependencies": {
+    "@types/pixi.js": "^4.8.4",
+    "fuse-box": "^3.6.0",
+    "prettier": "^1.15.3",
+    "typescript": "^3.2.1",
+    "uglify-es": "^3.3.9",
+    "uglify-js": "^3.4.9"
+  },
+  "dependencies": {
+    "pixi-pause": "^1.0.3",
+    "pixi.js": "^4.8.2"
+  }
 }
