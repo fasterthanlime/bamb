@@ -29,6 +29,7 @@
     "uglify-js": "^3.4.9"
   },
   "dependencies": {
+    "@pixi/filter-drop-shadow": "^2.6.0",
     "pixi-pause": "^1.0.3",
     "pixi.js": "^4.8.2",
     "uuid": "^3.3.2"
