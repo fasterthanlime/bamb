@@ -15,7 +15,13 @@ context(
         output: "dist/$name.js",
         sourceMaps: !this.isProduction,
         plugins: [
-          [CSSResourcePlugin(), CSSPlugin()],
+          [
+            CSSResourcePlugin({
+              dist: "dist/fonts",
+              resolve: f => `/fonts/${f}`,
+            }),
+            CSSPlugin(),
+          ],
           this.isProduction &&
             QuantumPlugin({
               uglify: true,

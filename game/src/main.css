@@ -1,5 +1,13 @@
+@font-face {
+  font-family: "Roboto";
+  src: url("fonts/Roboto-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 html,
 body {
+  font-family: "Roboto", sans-serif;
   margin: 0;
   padding: 0;
 }
