@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { DropShadowFilter } from '@pixi/filter-drop-shadow';
+import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import * as uuidv4 from "uuid/v4";
 import "./main.css";
 
@@ -230,7 +230,7 @@ function main() {
         let cardGfx = new PIXI.Graphics();
         cardGfx.lineStyle(1, 0xffffff, 1);
         cardGfx.beginFill(playerColors[player]);
-        cardGfx.filters = [new DropShadowFilter()]
+        cardGfx.filters = [new DropShadowFilter()];
         cardGfx.drawRoundedRect(
           -cardSide / 2,
           -cardSide / 2,
@@ -265,7 +265,7 @@ function main() {
 
   app.stage.addChild(board);
 
-  let layout = () => {
+  let layout = (immediate = false) => {
     let { width, height } = app.renderer;
 
     {
@@ -301,13 +301,17 @@ function main() {
         y += bpos.row * (cardSide + cardPadding);
         card.targetPos.set(x, y);
       }
+      if (immediate) {
+        let { x, y } = card.targetPos;
+        card.container.position.set(x, y);
+      }
     }
   };
-  layout();
+  layout(true);
 
   window.addEventListener("resize", () => {
     app.renderer.resize(window.innerWidth, window.innerHeight);
-    layout();
+    layout(true);
   });
 
   const alpha = 0.2;
