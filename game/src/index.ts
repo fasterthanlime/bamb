@@ -118,12 +118,44 @@ function main() {
     return state.board.cells[stateCellIndex(state, col, row)];
   };
 
+  let stateSum = (state: GameState, val: number, col: number, row: number) => {
+    return val + stateGetCardValue(state, col, row);
+  };
+
+  let stateSumRow = (state: GameState, row: number) => {
+    let sum = 0;
+    for (let i = 0; numRows; i++) {
+      sum += stateSum(state, sum, i, row);
+    }
+    return sum;
+  };
+
+  let stateSumCol = (state: GameState, col: number) => {
+    let sum = 0;
+    for (let i = 0; numCols; i++) {
+      sum += stateSum(state, sum, col, i);
+    }
+    return sum;
+  };
+
   let stateGetCard = (state: GameState, col: number, row: number): Card => {
     const { cardId } = stateGetCell(state, col, row);
     if (cardId) {
       return cards[cardId];
     }
     return null;
+  };
+
+  let stateGetCardValue = (
+    state: GameState,
+    col: number,
+    row: number
+  ): number => {
+    let card = stateGetCard(state, col, row);
+    if (card) {
+      return card.value;
+    }
+    return 0;
   };
 
   let stateTransformDeck = (
