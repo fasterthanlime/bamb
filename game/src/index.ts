@@ -3,6 +3,7 @@ import { Game } from "./game";
 import { layout } from "./layout";
 import "./main.css";
 import { step } from "./step";
+import * as FontFaceObserver from "fontfaceobserver";
 
 function main() {
   const app = new PIXI.Application({
@@ -34,6 +35,7 @@ function main() {
   app.start();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  await new FontFaceObserver("Roboto").load();
   main();
 });

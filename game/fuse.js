@@ -18,7 +18,7 @@ context(
           [
             CSSResourcePlugin({
               dist: "dist/fonts",
-              resolve: f => `/fonts/${f}`,
+              resolve: f => `fonts/${f}`,
             }),
             CSSPlugin(),
           ],
@@ -30,6 +30,7 @@ context(
             }),
           WebIndexPlugin({
             path: ".",
+            template: "./src/index.template.html",
           }),
         ],
       });
