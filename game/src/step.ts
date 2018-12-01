@@ -1,6 +1,6 @@
 import { Game } from "./game";
 
-const alpha = 0.2;
+const alpha = 0.1;
 
 // Step is called every tick
 export function step(game: Game, delta: number) {

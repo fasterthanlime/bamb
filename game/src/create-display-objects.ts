@@ -194,6 +194,7 @@ function createBoard(game: Game): PIXI.Container {
       }
     }
 
+    let cellSide = D.cardSide;
     for (let i = 0; i < game.numCols; i++) {
       for (let j = 0; j < game.numRows; j++) {
         const cellContainer = new PIXI.Container() as CellContainer;
@@ -206,10 +207,10 @@ function createBoard(game: Game): PIXI.Container {
         cellGfx.beginFill(0xaaaaaa, 0);
         cellGfx.lineStyle(1, 0x000000, 1);
         cellGfx.drawRoundedRect(
-          -D.cardSide / 2,
-          -D.cardSide / 2,
-          D.cardSide,
-          D.cardSide,
+          -cellSide / 2,
+          -cellSide / 2,
+          cellSide,
+          cellSide,
           D.borderRadius
         );
         let x = D.cardSide / 2 + D.cardPadding;
