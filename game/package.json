@@ -35,6 +35,6 @@
     "uuid": "^3.3.2"
   },
   "prettier": {
-    "trailingComma": "es5"
+    "trailingComma": "all"
   }
 }

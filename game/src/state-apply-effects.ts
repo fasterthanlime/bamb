@@ -1,21 +1,23 @@
 import { GameState } from "./types";
 import { Game } from "./game";
 
-export function stateApplyEffects(game: Game, state: GameState): GameState {
-  if (state.currentPlayer != 0) {
-    // nothing to do
-    return state;
-  }
+export function stateApplyEffects(
+  game: Game,
+  oldState: GameState,
+  newState: GameState
+): GameState {
+  const oldZones = computeHotZones(game, oldState);
+  const newZones = computeHotZones(game, newState);
 
   let rowsToClear = [];
   let colsToClear = [];
-  for (let row = 0; row < game.numRows; row++) {
-    if (game.stateSumRow(state, row) > game.maxSum) {
+  for (const row of newZones.hotRows) {
+    if (oldZones.hotRows.indexOf(row) !== -1) {
       rowsToClear.push(row);
     }
   }
-  for (let col = 0; col < game.numCols; col++) {
-    if (game.stateSumCol(state, col) > game.maxSum) {
+  for (const col of newZones.hotCols) {
+    if (oldZones.hotCols.indexOf(col) !== -1) {
       colsToClear.push(col);
     }
   }
@@ -23,6 +25,7 @@ export function stateApplyEffects(game: Game, state: GameState): GameState {
   console.log(
     `${rowsToClear.length} rows to clear, ${colsToClear.length} cols to clear`
   );
+  let state = newState;
   if (rowsToClear.length > 0 || colsToClear.length > 0) {
     for (const col of colsToClear) {
       for (let row = 0; row < game.numRows; row++) {
@@ -52,4 +55,27 @@ export function stateApplyEffects(game: Game, state: GameState): GameState {
     }
   }
   return state;
+}
+
+interface HotZones {
+  hotRows: number[];
+  hotCols: number[];
+}
+
+export function computeHotZones(game: Game, state: GameState): HotZones {
+  let zones: HotZones = {
+    hotRows: [],
+    hotCols: [],
+  };
+  for (let row = 0; row < game.numRows; row++) {
+    if (game.stateSumRow(state, row) > game.maxSum) {
+      zones.hotRows.push(row);
+    }
+  }
+  for (let col = 0; col < game.numCols; col++) {
+    if (game.stateSumCol(state, col) > game.maxSum) {
+      zones.hotCols.push(col);
+    }
+  }
+  return zones;
 }

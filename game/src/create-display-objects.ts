@@ -1,10 +1,10 @@
 import { Game } from "./game";
-import { CellContainer, CardContainer, Card } from "./types";
+import { CellContainer, CardContainer, Card, SumsGraphics } from "./types";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import * as uuidv4 from "uuid/v4";
 
 const playerColors = [0xec7d75, 0x75c3ec];
-
+export const fontFamily = "Roboto";
 const shadowFilter = new DropShadowFilter();
 shadowFilter.alpha = 0.16;
 shadowFilter.distance = 1;
@@ -39,7 +39,8 @@ export function createDisplayObjects(game: Game) {
     const cards = createCards(game);
     const trash = createTrash(game);
     const board = createBoard(game);
-    game.displayObjects = { decks, cards, trash, board };
+    const sums = createSums(game);
+    game.displayObjects = { decks, cards, trash, board, sums };
   }
 }
 
@@ -69,7 +70,7 @@ function createCards(game: Game): PIXI.Container {
   {
     function onDragStart(
       this: CardContainer,
-      event: PIXI.interaction.InteractionEvent
+      event: PIXI.interaction.InteractionEvent,
     ) {
       const { card } = this;
       const parent = this.parent;
@@ -136,13 +137,13 @@ function createCards(game: Game): PIXI.Container {
           -D.cardSide / 2,
           D.cardSide,
           D.cardSide,
-          D.borderRadius
+          D.borderRadius,
         );
         cardContainer.addChild(cardGfx);
 
         let text = new PIXI.Text(card.value, {
           fontSize: 30,
-          fontFamily: "Roboto",
+          fontFamily,
           fill: "white",
           align: "center",
         });
@@ -173,7 +174,7 @@ function createBoard(game: Game): PIXI.Container {
   {
     function onMouseOver(
       this: CellContainer,
-      event: PIXI.interaction.InteractionEvent
+      event: PIXI.interaction.InteractionEvent,
     ) {
       if (game.dragTarget) {
         console.log(`has drag target, currently over `, this.cell);
@@ -186,7 +187,7 @@ function createBoard(game: Game): PIXI.Container {
 
     function onMouseOut(
       this: CellContainer,
-      event: PIXI.interaction.InteractionEvent
+      event: PIXI.interaction.InteractionEvent,
     ) {
       if (game.dragTarget) {
         if (game.dragTarget.dragging.over == this) {
@@ -212,7 +213,7 @@ function createBoard(game: Game): PIXI.Container {
           -cellSide / 2,
           cellSide,
           cellSide,
-          D.borderRadius
+          D.borderRadius,
         );
         let x = D.cardSide / 2 + D.cardPadding;
         x += i * (D.cardSide + D.cardPadding);
@@ -235,4 +236,44 @@ function createBoard(game: Game): PIXI.Container {
 function createTrash(game: Game): PIXI.Container {
   const trash = new PIXI.Container();
   return trash;
+}
+
+function createSums(game: Game): SumsGraphics {
+  const D = game.dimensions;
+
+  const container = new PIXI.Container();
+  let sums: SumsGraphics = {
+    container,
+    cols: [],
+    rows: [],
+  };
+
+  for (let col = 0; col < game.numCols; col++) {
+    let text = new PIXI.Text(`col ${col + 1}`, {
+      fontSize: 20,
+      fontFamily,
+    });
+    text.anchor.set(0.5, 0.5);
+    text.position.set(
+      D.cardSide / 2 + D.cardPadding + (D.cardSide + D.cardPadding) * col,
+      -8,
+    );
+    container.addChild(text);
+    sums.cols.push(text);
+  }
+  for (let row = 0; row < game.numCols; row++) {
+    let text = new PIXI.Text(`row ${row + 1}`, {
+      fontSize: 20,
+      fontFamily,
+    });
+    text.anchor.set(0.5, 0.5);
+    text.position.set(
+      -24,
+      D.cardSide / 2 + D.cardPadding + (D.cardSide + D.cardPadding) * row,
+    );
+    container.addChild(text);
+    sums.rows.push(text);
+  }
+  game.container.addChild(container);
+  return sums;
 }

@@ -59,4 +59,30 @@ export function propagate(game: Game) {
     const card = game.cards[cardId];
     card.container.interactive = draggableCardIds[card.id];
   }
+
+  let setSum = (textObj: PIXI.Text, sum: number) => {
+    textObj.text = `${sum}`;
+    if (sum > game.maxSum) {
+      textObj.style.fill = "red";
+      textObj.style.fontSize = 28;
+    } else if (sum + 3 > game.maxSum) {
+      textObj.style.fill = "orange";
+      textObj.style.fontSize = 24;
+    } else {
+      textObj.style.fill = "green";
+      textObj.style.fontSize = 20;
+    }
+  };
+
+  for (let col = 0; col < game.numCols; col++) {
+    const sum = game.stateSumCol(game.state, col);
+    let textObj = game.displayObjects.sums.cols[col];
+    setSum(textObj, sum);
+  }
+
+  for (let row = 0; row < game.numRows; row++) {
+    const sum = game.stateSumRow(game.state, row);
+    let textObj = game.displayObjects.sums.rows[row];
+    setSum(textObj, sum);
+  }
 }

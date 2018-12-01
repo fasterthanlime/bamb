@@ -67,3 +67,9 @@ export interface CellState {
 export interface DeckState {
   cells: CellState[];
 }
+
+export interface SumsGraphics {
+  container: PIXI.Container;
+  cols: PIXI.Text[];
+  rows: PIXI.Text[];
+}

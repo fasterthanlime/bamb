@@ -10,14 +10,19 @@ export function layout(game: Game, immediate = false) {
 
     p2Deck.position.set(
       width / 2 - D.deckWidth / 2,
-      height - D.deckHeight - D.deckVertPadding
+      height - D.deckHeight - D.deckVertPadding,
     );
   }
 
   const board = game.displayObjects.board;
   board.position.set(
     width / 2 - D.boardWidth / 2,
-    height / 2 - D.boardHeight / 2
+    height / 2 - D.boardHeight / 2,
+  );
+
+  game.displayObjects.sums.container.position.set(
+    board.position.x,
+    board.position.y,
   );
 
   {
@@ -47,7 +52,7 @@ export function layout(game: Game, immediate = false) {
       const trash = game.displayObjects.trash;
       card.targetPos.set(
         trash.position.x,
-        trash.position.y + D.cardPadding * place.index
+        trash.position.y + D.cardPadding * place.index,
       );
     }
     if (immediate) {

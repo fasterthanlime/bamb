@@ -6,6 +6,7 @@ import {
   BoardState,
   BoardPlacement,
   Move,
+  SumsGraphics,
 } from "./types";
 import { emptyBoard } from "./transforms";
 import { propagate } from "./propagate";
@@ -37,6 +38,7 @@ export class Game {
     decks: PIXI.Container[];
     cards: PIXI.Container;
     trash: PIXI.Container;
+    sums: SumsGraphics;
   };
   dimensions: {
     borderRadius: number;
@@ -80,7 +82,6 @@ export class Game {
     for (let col = 0; col < this.numCols; col++) {
       sum += this.stateGetCardValue(state, col, row);
     }
-    console.log(`sum for row ${row}: ${sum}`);
     return sum;
   }
 
@@ -89,7 +90,6 @@ export class Game {
     for (let row = 0; row < this.numRows; row++) {
       sum += this.stateGetCardValue(state, col, row);
     }
-    console.log(`sum for col ${col}: ${sum}`);
     return sum;
   }
 
@@ -194,9 +194,10 @@ export class Game {
   }
 
   applyMove(move: Move) {
-    let newState = stateApplyMove(this, this.state, move);
-    if (newState != this.state) {
-      newState = stateApplyEffects(this, newState);
+    let oldState = this.state;
+    let newState = stateApplyMove(this, oldState, move);
+    if (newState != oldState) {
+      newState = stateApplyEffects(this, oldState, newState);
     }
     this.state = newState;
     propagate(this);
