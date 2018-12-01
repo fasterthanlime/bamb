@@ -39,6 +39,12 @@ export function propagate(game: Game) {
         index: i,
       },
     };
+
+    {
+      let parent = card.container.parent;
+      parent.removeChild(card.container);
+      parent.addChild(card.container);
+    }
   }
 
   let draggableCardIds = {};
