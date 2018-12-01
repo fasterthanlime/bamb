@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import { DropShadowFilter } from '@pixi/filter-drop-shadow';
 import * as uuidv4 from "uuid/v4";
 import "./main.css";
 
@@ -154,6 +155,7 @@ function main() {
         let cardGfx = new PIXI.Graphics();
         cardGfx.lineStyle(1, 0xffffff, 1);
         cardGfx.beginFill(playerColors[player]);
+        cardGfx.filters = [new DropShadowFilter()]
         cardGfx.drawRoundedRect(
           -cardSide / 2,
           -cardSide / 2,
