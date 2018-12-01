@@ -24,26 +24,51 @@ export function stateApplyMove(
     return state;
   }
 
-  // second, make sure the target is empty
-  // {
-  //   const { col, row } = move.placement;
-  //   if (game.stateGetCard(state, col, row)) {
-  //     console.error(`already has a card at ${col}, ${row}`);
-  //     return state;
-  //   }
-  // }
+  const { col, row } = move.placement;
+  let card = game.cards[move.cardId];
+  let underCard = game.stateGetCard(game.state, col, row);
 
-  let previousState = state;
-  {
-    let state = game.stateAdvanceTurn(previousState);
-    // remove card from deck
-    state = game.stateTransformDeck(state, move.player, deck =>
-      game.deckRemoveCard(deck, move.cardId)
-    );
-    // place card on board
-    state = game.stateTransformBoard(state, board =>
-      game.boardSetCard(board, move.placement, move.cardId)
-    );
-    return state;
+  if (typeof card.value === "number") {
+    if (underCard) {
+      if (underCard.player != card.player) {
+        console.log(`can't play over card of other player`);
+        return state;
+      }
+
+      if (underCard.value < card.value) {
+        console.log(`can only swap with lower-value card`);
+        return state;
+      }
+    }
+
+    // cool, let's try to place it!
+    let previousState = state;
+    {
+      let state = game.stateAdvanceTurn(previousState);
+      if (underCard) {
+        // place under card back into deck
+        state = game.stateTransformBoard(state, board =>
+          game.boardSetCard(board, move.placement, undefined)
+        );
+        state = game.stateTransformDeck(state, move.player, deck =>
+          game.deckAddCard(deck, underCard.id)
+        );
+      }
+
+      // remove card from deck & place it on board
+      state = game.stateTransformDeck(state, move.player, deck =>
+        game.deckRemoveCard(deck, move.cardId)
+      );
+      state = game.stateTransformBoard(state, board =>
+        game.boardSetCard(board, move.placement, move.cardId)
+      );
+      return state;
+    }
+  } else if (typeof card.value === "string") {
+    console.log(`playing modifier card ${card.value}`);
+    if (!underCard) {
+    }
   }
+
+  return state;
 }

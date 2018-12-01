@@ -160,6 +160,21 @@ export class Game {
     return { ...deck, cells: this.cellsRemoveCard(deck.cells, cardId) };
   }
 
+  deckAddCard(deck: DeckState, cardId: string): DeckState {
+    let previousDeck = deck;
+    {
+      let deck = { ...previousDeck };
+      deck.cells = [...deck.cells];
+      for (let i = 0; i < deck.cells.length; i++) {
+        if (!deck.cells[i].cardId) {
+          deck.cells[i] = { cardId };
+          break;
+        }
+      }
+      return deck;
+    }
+  }
+
   boardSetCard(
     previousBoard: BoardState,
     placement: BoardPlacement,
@@ -169,9 +184,6 @@ export class Game {
     const { col, row } = placement;
     let idx = this.cellIndex(col, row);
     board.cells = this.cellsTransform(board.cells, idx, cell => {
-      if (cell.cardId) {
-        board.trashedCardIds = [...board.trashedCardIds, cell.cardId];
-      }
       return { cardId };
     });
     return board;
