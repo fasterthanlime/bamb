@@ -142,6 +142,7 @@ function createCards(game: Game): PIXI.Container {
 
         let text = new PIXI.Text(card.value, {
           fontSize: 30,
+          fontFamily: "Roboto",
           fill: "white",
           align: "center",
         });
@@ -233,9 +234,5 @@ function createBoard(game: Game): PIXI.Container {
 
 function createTrash(game: Game): PIXI.Container {
   const trash = new PIXI.Container();
-  {
-    let text = new PIXI.Text("trash");
-    trash.addChild(text);
-  }
   return trash;
 }
