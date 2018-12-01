@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import "./main.css";
 
 function main() {
   const app = new PIXI.Application({
@@ -6,7 +7,7 @@ function main() {
   });
   app.renderer.backgroundColor = 0xfff1f1f1;
 
-  let text = new PIXI.Text("WebGL sacrifices!!!");
+  let text = new PIXI.Text("ok");
   text.position.set(30, 30);
   app.stage.addChild(text);
 
