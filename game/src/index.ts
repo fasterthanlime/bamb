@@ -62,7 +62,7 @@ function main() {
   let numCols = 4;
   let numRows = 4;
 
-  let playerColors = [0xff8888, 0x8888ff];
+  let playerColors = [0xEC7D75, 0x75C3EC];
   let dragTarget: Card = null;
 
   const decks = [];
@@ -71,7 +71,7 @@ function main() {
     {
       let rect = new PIXI.Graphics();
       rect.lineStyle(2, 0x999999, 1);
-      rect.beginFill(0xaaaaaa);
+      rect.beginFill(0xBDC1D1);
       rect.drawRoundedRect(0, 0, deckWidth, deckHeight, borderRadius);
       deck.addChild(rect);
     }
@@ -195,7 +195,6 @@ function main() {
         };
         cards[cardId] = card;
         let cardGfx = new PIXI.Graphics();
-        cardGfx.lineStyle(1, 0xffffff, 1);
         cardGfx.beginFill(playerColors[player]);
         cardGfx.filters = [new DropShadowFilter()]
         cardGfx.drawRoundedRect(
