@@ -110,19 +110,16 @@ export class Game {
   }
 
   stateTransformDeck(
-    state: GameState,
+    prevState: GameState,
     player: number,
     f: (deckState: DeckState) => DeckState
   ): GameState {
-    let previousState = state;
-    {
-      let state = {
-        ...previousState,
-        decks: [...previousState.decks],
-      };
-      state.decks[player] = f(state.decks[player]);
-      return state;
-    }
+    let state = {
+      ...prevState,
+      decks: [...prevState.decks],
+    };
+    state.decks[player] = f(state.decks[player]);
+    return state;
   }
 
   stateTransformBoard(
@@ -132,26 +129,20 @@ export class Game {
     return { ...state, board: f(state.board) };
   }
 
-  cellsRemoveCard(cells: CellState[], cardId: string): CellState[] {
-    let previousCells = cells;
-    {
-      let cells = [...previousCells];
-      for (let i = 0; i < cells.length; i++) {
-        if (cells[i].cardId == cardId) {
-          cells[i] = {};
-        }
+  cellsRemoveCard(prevCells: CellState[], cardId: string): CellState[] {
+    let cells = [...prevCells];
+    for (let i = 0; i < cells.length; i++) {
+      if (cells[i].cardId == cardId) {
+        cells[i] = {};
       }
-      return cells;
     }
+    return cells;
   }
 
-  cellsSet(cells: CellState[], idx: number, cell: CellState): CellState[] {
-    let previousCells = cells;
-    {
-      let cells = [...previousCells];
-      cells[idx] = cell;
-      return cells;
-    }
+  cellsSet(prevCells: CellState[], idx: number, cell: CellState): CellState[] {
+    let cells = [...prevCells];
+    cells[idx] = cell;
+    return cells;
   }
 
   cellsTransform(
@@ -166,45 +157,36 @@ export class Game {
     return { ...deck, cells: this.cellsRemoveCard(deck.cells, cardId) };
   }
 
-  deckAddCard(deck: DeckState, cardId: string): DeckState {
-    let previousDeck = deck;
-    {
-      let deck = { ...previousDeck };
-      deck.cells = [...deck.cells];
-      for (let i = 0; i < deck.cells.length; i++) {
-        if (!deck.cells[i].cardId) {
-          deck.cells[i] = { cardId };
-          break;
-        }
+  deckAddCard(prevDeck: DeckState, cardId: string): DeckState {
+    let deck = { ...prevDeck };
+    deck.cells = [...deck.cells];
+    for (let i = 0; i < deck.cells.length; i++) {
+      if (!deck.cells[i].cardId) {
+        deck.cells[i] = { cardId };
+        break;
       }
-      return deck;
     }
+    return deck;
   }
 
-  boardTrashCard(board: BoardState, cardId: string): BoardState {
-    let previousBoard = board;
-    {
-      let board = { ...previousBoard };
-      board.trashedCardIds = [...board.trashedCardIds, cardId];
-      return board;
-    }
+  boardTrashCard(prevBoard: BoardState, cardId: string): BoardState {
+    let board = { ...prevBoard };
+    board.trashedCardIds = [...board.trashedCardIds, cardId];
+    return board;
   }
 
   boardSetCard(
-    board: BoardState,
+    prevBoard: BoardState,
     placement: BoardPlacement,
     cardId: string
   ): BoardState {
-    let previousBoard = board;
-    {
-      let board = { ...previousBoard };
-      const { col, row } = placement;
-      let idx = this.cellIndex(col, row);
-      board.cells = this.cellsTransform(board.cells, idx, cell => {
-        return cardId ? { cardId } : {};
-      });
-      return board;
-    }
+    let board = { ...prevBoard };
+    const { col, row } = placement;
+    let idx = this.cellIndex(col, row);
+    board.cells = this.cellsTransform(board.cells, idx, cell => {
+      return cardId ? { cardId } : {};
+    });
+    return board;
   }
 
   stateAdvanceTurn(state: GameState): GameState {

@@ -3,12 +3,12 @@ import { Game } from "./game";
 
 export function stateApplyMove(
   game: Game,
-  state: GameState,
+  prevState: GameState,
   move: Move
 ): GameState {
   // first, check that we're playing from the current player's hand
   let hasCard = false;
-  const currentDeck = state.decks[state.currentPlayer];
+  const currentDeck = prevState.decks[prevState.currentPlayer];
   for (const dc of currentDeck.cells) {
     if (dc.cardId == move.cardId) {
       // yes, we are!
@@ -19,9 +19,9 @@ export function stateApplyMove(
 
   if (!hasCard) {
     console.error(
-      `${move.cardId} is not in deck for player ${state.currentPlayer}`
+      `${move.cardId} is not in deck for player ${prevState.currentPlayer}`
     );
-    return state;
+    return prevState;
   }
 
   const { col, row } = move.placement;
@@ -32,19 +32,18 @@ export function stateApplyMove(
     if (underCard) {
       if (underCard.player != card.player) {
         console.error(`can't play over card of other player`);
-        return state;
+        return prevState;
       }
 
       if (underCard.value < card.value) {
         console.error(`can only swap with lower-value card`);
-        return state;
+        return prevState;
       }
     }
 
     // cool, let's try to place it!
-    let previousState = state;
     {
-      let state = game.stateAdvanceTurn(previousState);
+      let state = game.stateAdvanceTurn(prevState);
       if (underCard) {
         // place under card back into deck
         state = game.stateTransformBoard(state, board =>
@@ -68,33 +67,32 @@ export function stateApplyMove(
     console.log(`playing modifier card ${card.value}`);
     if (!underCard) {
       console.error(`can't play modifier card on blank space`);
-      return state;
+      return prevState;
     }
 
     let [dcol, drow] = dirToColRow(card.value);
     let [newCol, newRow] = [col + dcol, row + drow];
     if (newCol < 0) {
       console.error(`can't drop cards off left edge of board`);
-      return state;
+      return prevState;
     }
     if (newCol >= game.numCols) {
       console.error(`can't drop cards off right edge of board`);
-      return state;
+      return prevState;
     }
     if (newRow < 0) {
       console.error(`can't drop cards off top edge of board`);
-      return state;
+      return prevState;
     }
     if (newRow >= game.numRows) {
       console.error(`can't drop cards off bottom edge of board`);
-      return state;
+      return prevState;
     }
 
     console.log(`Would move from ${col},${row} to ${newCol},${newRow}`);
 
-    let previousState = state;
     {
-      let state = game.stateAdvanceTurn(previousState);
+      let state = game.stateAdvanceTurn(prevState);
 
       // remove card from deck & place it into trash
       state = game.stateTransformDeck(state, move.player, deck =>
@@ -121,7 +119,7 @@ export function stateApplyMove(
     }
   }
 
-  return state;
+  return prevState;
 }
 
 function dirToColRow(value: string): number[] {

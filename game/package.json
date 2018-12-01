@@ -22,11 +22,10 @@
   "homepage": "https://github.com/fasterthanlime/ld43#readme",
   "devDependencies": {
     "@types/pixi.js": "^4.8.4",
-    "fuse-box": "^3.6.0",
+    "fuse-box": "^3.7.0-next.9",
     "prettier": "^1.15.3",
-    "typescript": "^3.2.1",
-    "uglify-es": "^3.3.9",
-    "uglify-js": "^3.4.9"
+    "terser": "^3.10.13",
+    "typescript": "^3.2.1"
   },
   "dependencies": {
     "@pixi/filter-drop-shadow": "^2.6.0",
