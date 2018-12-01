@@ -86,7 +86,7 @@ function main() {
   let numCols = 4;
   let numRows = 4;
 
-  let playerColors = [0xEC7D75, 0x75C3EC];
+  let playerColors = [0xec7d75, 0x75c3ec];
   let dragTarget: Card = null;
 
   let emptyBoard = (cols: number, rows: number) => {
@@ -140,6 +140,56 @@ function main() {
     return sum;
   };
 
+  let stateGetCard = (state: GameState, col: number, row: number): Card => {
+    const { cardId } = stateGetCell(state, col, row);
+    if (cardId) {
+      return cards[cardId];
+    }
+    return null;
+  }
+
+  let stateTransformDeck = (state: GameState, player: number, f: (deckState: DeckState) => DeckState): GameState => {
+    let newState = {
+      ...state,
+      decks: [...state.decks,]
+    }
+    newState.decks[player] = f(newState.decks[player]);
+    return newState;
+  };
+
+  let stateTransformBoard = (state: GameState, f: (board: BoardState) => BoardState): GameState => {
+    return { ...state, board: f(state.board) }
+  };
+
+  let deckRemoveCard = (previousDeck: DeckState, cardId: string): DeckState => {
+    let deck: DeckState = {
+      cells: [...previousDeck.cells],
+    };
+    for (let i = 0; i < deck.cells.length; i++) {
+      if (deck.cells[i].cardId == cardId) {
+        deck.cells[i] = {};
+      }
+    }
+    return deck;
+  };
+
+  let boardSetCard = (
+    previousBoard: BoardState,
+    placement: BoardPlacement,
+    cardId: string
+  ): BoardState => {
+    let board: BoardState = {
+      cells: [...previousBoard.cells],
+    };
+    const { col, row } = placement;
+    board.cells[stateCellIndex(state, col, row)] = { cardId };
+    return board;
+  };
+
+  let stateAdvanceTurn = (state: GameState) {
+    return { ...state, currentPlayer: 1 - state.currentPlayer };
+  }
+
   let stateApplyMove = (state: GameState, move: Move): GameState => {
     // first, check that we're playing from the current player's hand
     let hasCard = false;
@@ -162,36 +212,30 @@ function main() {
     // second, make sure the target is empty
     {
       const { col, row } = move.placement;
-      const targetCell = stateGetCell(state, col, row);
-      if (targetCell.cardId) {
+      if (stateGetCard(state, col, row)) {
         console.error(`already has a card at ${col}, ${row}`);
         return state;
       }
     }
 
-    console.log(`Should apply move for real!`);
-    let newState = { ...state };
-    newState.currentPlayer = 1 - newState.currentPlayer;
-    newState.board = { ...newState.board };
-    let board = newState.board;
-    board.cells = [...board.cells];
+    let previousState = state;
     {
-      const { col, row } = move.placement;
-      let index = stateCellIndex(state, col, row);
-      console.log(`moving card to index `, index);
-      board.cells[index] = { cardId: move.cardId };
+      let state = stateAdvanceTurn(previousState);
+      // remove card from deck
+      state = stateTransformDeck(state, move.player,
+        deck => deckRemoveCard(deck, move.cardId),
+      )
+      // place card on board
+      state = stateTransformBoard(state,
+        board => boardSetCard(board, move.placement, move.cardId)
+      )
+      return state;
     }
-    newState.decks = [...newState.decks];
-    let deck = newState.decks[move.player];
-    deck.cells = [...deck.cells];
-    for (let i = 0; i < deck.cells.length; i++) {
-      if (deck.cells[i].cardId == move.cardId) {
-        console.log(`clearing deck index `, i);
-        deck.cells[i] = {};
-      }
-    }
+<<<<<<< HEAD
 
     return newState;
+=======
+>>>>>>> 8590e1291e83acbdae56eb628ef4cf56b7a64a7b
   };
 
   let applyMove = (move: Move) => {
