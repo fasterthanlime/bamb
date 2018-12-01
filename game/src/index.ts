@@ -13,8 +13,8 @@ function main() {
   app.renderer.backgroundColor = 0xfff1f1f1;
 
   let game = new Game(app, {
-    numCols: 4,
-    numRows: 4,
+    numCols: 3,
+    numRows: 3,
   });
 
   app.stage.addChild(game.container);
