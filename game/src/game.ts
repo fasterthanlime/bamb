@@ -12,6 +12,7 @@ import { propagate } from "./propagate";
 import { layout } from "./layout";
 import { createDisplayObjects } from "./create-display-objects";
 import { stateApplyMove } from "./state-apply-move";
+import { stateApplyEffects } from "./state-apply-effects";
 
 interface GameCards {
   [cardId: string]: Card;
@@ -20,12 +21,14 @@ interface GameCards {
 export interface GameSettings {
   numCols: number;
   numRows: number;
+  maxSum: number;
 }
 
 export class Game {
   app: PIXI.Application;
   numCols: number;
   numRows: number;
+  maxSum: number;
   state: GameState;
   cards: GameCards;
   container: PIXI.Container;
@@ -52,6 +55,7 @@ export class Game {
     const { numCols, numRows } = settings;
     this.numCols = numCols;
     this.numRows = numRows;
+    this.maxSum = settings.maxSum;
     this.state = {
       currentPlayer: 0,
       board: emptyBoard(numCols, numRows),
@@ -73,17 +77,19 @@ export class Game {
 
   stateSumRow(state: GameState, row: number): number {
     let sum = 0;
-    for (let i = 0; this.numRows; i++) {
-      sum += this.stateGetCardValue(state, i, row);
+    for (let col = 0; col < this.numCols; col++) {
+      sum += this.stateGetCardValue(state, col, row);
     }
+    console.log(`sum for row ${row}: ${sum}`);
     return sum;
   }
 
   stateSumCol(state: GameState, col: number): number {
     let sum = 0;
-    for (let i = 0; this.numCols; i++) {
-      sum += this.stateGetCardValue(state, col, i);
+    for (let row = 0; row < this.numRows; row++) {
+      sum += this.stateGetCardValue(state, col, row);
     }
+    console.log(`sum for col ${col}: ${sum}`);
     return sum;
   }
 
@@ -104,19 +110,16 @@ export class Game {
   }
 
   stateTransformDeck(
-    state: GameState,
+    prevState: GameState,
     player: number,
     f: (deckState: DeckState) => DeckState
   ): GameState {
-    let previousState = state;
-    {
-      let state = {
-        ...previousState,
-        decks: [...previousState.decks],
-      };
-      state.decks[player] = f(state.decks[player]);
-      return state;
-    }
+    let state = {
+      ...prevState,
+      decks: [...prevState.decks],
+    };
+    state.decks[player] = f(state.decks[player]);
+    return state;
   }
 
   stateTransformBoard(
@@ -126,26 +129,20 @@ export class Game {
     return { ...state, board: f(state.board) };
   }
 
-  cellsRemoveCard(cells: CellState[], cardId: string): CellState[] {
-    let previousCells = cells;
-    {
-      let cells = [...previousCells];
-      for (let i = 0; i < cells.length; i++) {
-        if (cells[i].cardId == cardId) {
-          cells[i] = {};
-        }
+  cellsRemoveCard(prevCells: CellState[], cardId: string): CellState[] {
+    let cells = [...prevCells];
+    for (let i = 0; i < cells.length; i++) {
+      if (cells[i].cardId == cardId) {
+        cells[i] = {};
       }
-      return cells;
     }
+    return cells;
   }
 
-  cellsSet(cells: CellState[], idx: number, cell: CellState): CellState[] {
-    let previousCells = cells;
-    {
-      let cells = [...previousCells];
-      cells[idx] = cell;
-      return cells;
-    }
+  cellsSet(prevCells: CellState[], idx: number, cell: CellState): CellState[] {
+    let cells = [...prevCells];
+    cells[idx] = cell;
+    return cells;
   }
 
   cellsTransform(
@@ -160,31 +157,34 @@ export class Game {
     return { ...deck, cells: this.cellsRemoveCard(deck.cells, cardId) };
   }
 
-  deckAddCard(deck: DeckState, cardId: string): DeckState {
-    let previousDeck = deck;
-    {
-      let deck = { ...previousDeck };
-      deck.cells = [...deck.cells];
-      for (let i = 0; i < deck.cells.length; i++) {
-        if (!deck.cells[i].cardId) {
-          deck.cells[i] = { cardId };
-          break;
-        }
+  deckAddCard(prevDeck: DeckState, cardId: string): DeckState {
+    let deck = { ...prevDeck };
+    deck.cells = [...deck.cells];
+    for (let i = 0; i < deck.cells.length; i++) {
+      if (!deck.cells[i].cardId) {
+        deck.cells[i] = { cardId };
+        break;
       }
-      return deck;
     }
+    return deck;
+  }
+
+  boardTrashCard(prevBoard: BoardState, cardId: string): BoardState {
+    let board = { ...prevBoard };
+    board.trashedCardIds = [...board.trashedCardIds, cardId];
+    return board;
   }
 
   boardSetCard(
-    previousBoard: BoardState,
+    prevBoard: BoardState,
     placement: BoardPlacement,
     cardId: string
   ): BoardState {
-    let board = { ...previousBoard };
+    let board = { ...prevBoard };
     const { col, row } = placement;
     let idx = this.cellIndex(col, row);
     board.cells = this.cellsTransform(board.cells, idx, cell => {
-      return { cardId };
+      return cardId ? { cardId } : {};
     });
     return board;
   }
@@ -194,7 +194,11 @@ export class Game {
   }
 
   applyMove(move: Move) {
-    this.state = stateApplyMove(this, this.state, move);
+    let newState = stateApplyMove(this, this.state, move);
+    if (newState != this.state) {
+      newState = stateApplyEffects(this, newState);
+    }
+    this.state = newState;
     propagate(this);
     layout(this);
   }

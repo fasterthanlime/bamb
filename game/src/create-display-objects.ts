@@ -183,6 +183,18 @@ function createBoard(game: Game): PIXI.Container {
       }
     }
 
+    function onMouseOut(
+      this: CellContainer,
+      event: PIXI.interaction.InteractionEvent
+    ) {
+      if (game.dragTarget) {
+        if (game.dragTarget.dragging.over == this) {
+          game.dragTarget.dragging.over = null;
+        }
+      }
+    }
+
+    let cellSide = D.cardSide;
     for (let i = 0; i < game.numCols; i++) {
       for (let j = 0; j < game.numRows; j++) {
         const cellContainer = new PIXI.Container() as CellContainer;
@@ -195,10 +207,10 @@ function createBoard(game: Game): PIXI.Container {
         cellGfx.beginFill(0xaaaaaa, 0);
         cellGfx.lineStyle(1, 0x000000, 1);
         cellGfx.drawRoundedRect(
-          -D.cardSide / 2,
-          -D.cardSide / 2,
-          D.cardSide,
-          D.cardSide,
+          -cellSide / 2,
+          -cellSide / 2,
+          cellSide,
+          cellSide,
           D.borderRadius
         );
         let x = D.cardSide / 2 + D.cardPadding;
@@ -211,6 +223,7 @@ function createBoard(game: Game): PIXI.Container {
 
         cellContainer.interactive = true;
         cellContainer.addListener("pointerover", onMouseOver);
+        cellContainer.addListener("pointerout", onMouseOut);
       }
     }
   }
