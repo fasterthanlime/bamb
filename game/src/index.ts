@@ -231,11 +231,6 @@ function main() {
       )
       return state;
     }
-<<<<<<< HEAD
-
-    return newState;
-=======
->>>>>>> 8590e1291e83acbdae56eb628ef4cf56b7a64a7b
   };
 
   let applyMove = (move: Move) => {
