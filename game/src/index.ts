@@ -57,6 +57,7 @@ interface GameState {
 
 interface BoardState {
   cells: CellState[];
+  trashedCardIds: string[];
 }
 
 interface CellState {
@@ -92,6 +93,7 @@ function main() {
   let emptyBoard = (cols: number, rows: number) => {
     let bs: BoardState = {
       cells: [],
+      trashedCardIds: [],
     };
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
@@ -117,36 +119,69 @@ function main() {
   };
 
   let stateGetCard = (state: GameState, col: number, row: number): Card => {
-    const {cardId} = stateGetCell(state, col, row);
+    const { cardId } = stateGetCell(state, col, row);
     if (cardId) {
       return cards[cardId];
     }
     return null;
-  }
+  };
 
-  let stateTransformDeck = (state: GameState, player: number, f: (deckState: DeckState) => DeckState): GameState =>{
+  let stateTransformDeck = (
+    state: GameState,
+    player: number,
+    f: (deckState: DeckState) => DeckState
+  ): GameState => {
     let newState = {
       ...state,
-      decks: [ ...state.decks, ]
-    }
+      decks: [...state.decks],
+    };
     newState.decks[player] = f(newState.decks[player]);
     return newState;
   };
 
-  let stateTransformBoard = (state: GameState, f: (board: BoardState) => BoardState): GameState => {
-    return { ...state, board: f(state.board) }
+  let stateTransformBoard = (
+    state: GameState,
+    f: (board: BoardState) => BoardState
+  ): GameState => {
+    return { ...state, board: f(state.board) };
   };
 
-  let deckRemoveCard = (previousDeck: DeckState, cardId: string): DeckState => {
-    let deck: DeckState = {
-      cells: [...previousDeck.cells],
-    };
-    for (let i = 0; i < deck.cells.length; i++) {
-      if (deck.cells[i].cardId == cardId) {
-        deck.cells[i] = {};
+  let cellsRemoveCard = (cells: CellState[], cardId: string): CellState[] => {
+    let previousCells = cells;
+    {
+      let cells = [...previousCells];
+      for (let i = 0; i < cells.length; i++) {
+        if (cells[i].cardId == cardId) {
+          cells[i] = {};
+        }
       }
+      return cells;
     }
-    return deck;
+  };
+
+  let cellsSet = (
+    cells: CellState[],
+    idx: number,
+    cell: CellState
+  ): CellState[] => {
+    let previousCells = cells;
+    {
+      let cells = [...previousCells];
+      cells[idx] = cell;
+      return cells;
+    }
+  };
+
+  let cellsTransform = (
+    cells: CellState[],
+    idx: number,
+    f: (cell: CellState) => CellState
+  ): CellState[] => {
+    return cellsSet(cells, idx, f(cells[idx]));
+  };
+
+  let deckRemoveCard = (deck: DeckState, cardId: string): DeckState => {
+    return { ...deck, cells: cellsRemoveCard(deck.cells, cardId) };
   };
 
   let boardSetCard = (
@@ -154,17 +189,21 @@ function main() {
     placement: BoardPlacement,
     cardId: string
   ): BoardState => {
-    let board: BoardState = {
-      cells: [...previousBoard.cells],
-    };
-    const {col, row} = placement;
-    board.cells[stateCellIndex(state, col, row)] = { cardId };
+    let board = { ...previousBoard };
+    const { col, row } = placement;
+    let idx = stateCellIndex(state, col, row);
+    board.cells = cellsTransform(board.cells, idx, cell => {
+      if (cell.cardId) {
+        board.trashedCardIds = [...board.trashedCardIds, cell.cardId];
+      }
+      return { cardId };
+    });
     return board;
   };
 
-  let stateAdvanceTurn = (state: GameState) {
-    return {...state, currentPlayer: 1 - state.currentPlayer};
-  }
+  let stateAdvanceTurn = (state: GameState): GameState => {
+    return { ...state, currentPlayer: 1 - state.currentPlayer };
+  };
 
   let stateApplyMove = (state: GameState, move: Move): GameState => {
     // first, check that we're playing from the current player's hand
@@ -198,13 +237,13 @@ function main() {
     {
       let state = stateAdvanceTurn(previousState);
       // remove card from deck
-      state = stateTransformDeck(state, move.player,
-        deck => deckRemoveCard(deck, move.cardId),
-      )
+      state = stateTransformDeck(state, move.player, deck =>
+        deckRemoveCard(deck, move.cardId)
+      );
       // place card on board
-      state = stateTransformBoard(state,
-        board => boardSetCard(board, move.placement, move.cardId)
-      )
+      state = stateTransformBoard(state, board =>
+        boardSetCard(board, move.placement, move.cardId)
+      );
       return state;
     }
   };
