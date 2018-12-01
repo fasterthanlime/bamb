@@ -37,8 +37,9 @@ export function createDisplayObjects(game: Game) {
     // DO NOT REORDER THIS - order matters
     const decks = createDecks(game);
     const cards = createCards(game);
+    const trash = createTrash(game);
     const board = createBoard(game);
-    game.displayObjects = { decks, cards, board };
+    game.displayObjects = { decks, cards, trash, board };
   }
 }
 
@@ -215,4 +216,13 @@ function createBoard(game: Game): PIXI.Container {
   }
   game.container.addChild(board);
   return board;
+}
+
+function createTrash(game: Game): PIXI.Container {
+  const trash = new PIXI.Container();
+  {
+    let text = new PIXI.Text("trash");
+    trash.addChild(text);
+  }
+  return trash;
 }

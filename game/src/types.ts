@@ -8,9 +8,14 @@ export interface BoardPlacement {
   row: number;
 }
 
+export interface TrashPlacement {
+  index: number;
+}
+
 export interface CardPlacement {
   deckPlacement?: DeckPlacement;
   boardPlacement?: BoardPlacement;
+  trashPlacement?: TrashPlacement;
 }
 
 export interface Move {
