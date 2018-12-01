@@ -4,7 +4,8 @@
   "description": "LD43 entry",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node fuse.js"
   },
   "repository": {
     "type": "git",
