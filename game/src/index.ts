@@ -170,12 +170,9 @@ function main() {
   };
 
   let applyMove = (move: Move) => {
-    let newState = stateApplyMove(state, move);
-    if (newState !== state) {
-      state = newState;
-      propagate();
-      layout();
-    }
+    state = stateApplyMove(state, move);
+    propagate();
+    layout();
   };
 
   const decks = [];
@@ -366,6 +363,19 @@ function main() {
           };
         }
       }
+    }
+
+    let draggableCardIds = {};
+    const currentDeck = state.decks[state.currentPlayer].cells;
+    for (const c of currentDeck) {
+      if (c.cardId) {
+        draggableCardIds[c.cardId] = true;
+      }
+    }
+
+    for (const cardId of Object.keys(cards)) {
+      const card = cards[cardId];
+      card.container.interactive = draggableCardIds[card.id];
     }
   };
 
