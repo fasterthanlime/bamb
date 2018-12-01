@@ -2,13 +2,19 @@ import * as PIXI from "pixi.js";
 import * as uuidv4 from "uuid/v4";
 import "./main.css";
 
-interface CardDeckPosition {
+interface DeckPlacement {
   player: number;
   slot: number;
 }
 
-interface CardPosition {
-  deckPosition?: CardDeckPosition;
+interface BoardPlacement {
+  col: number;
+  row: number;
+}
+
+interface CardPlacement {
+  deckPlacement?: DeckPlacement;
+  boardPlacement?: BoardPlacement;
 }
 
 interface Card {
@@ -16,8 +22,17 @@ interface Card {
   value: any;
   id: string;
   container: PIXI.Container;
-  pos: CardPosition;
+  placement: CardPlacement;
+  targetPos: PIXI.Point;
+  dragging?: {
+    data: PIXI.interaction.InteractionData;
+    pos: PIXI.Point;
+  };
 }
+
+type CardContainer = PIXI.Container & {
+  card: Card;
+};
 
 function main() {
   const app = new PIXI.Application({
@@ -35,6 +50,9 @@ function main() {
   let deckVertPadding = 8;
   let fontSize = 14;
 
+  let numCols = 4;
+  let numRows = 4;
+
   let playerColors = [0xff8888, 0x8888ff];
 
   const decks = [];
@@ -51,34 +69,65 @@ function main() {
     decks.push(deck);
   }
 
+  const board = new PIXI.Container();
+  let boardWidth = numCols * (cardSide + cardPadding);
+  let boardHeight = numCols * (cardSide + cardPadding);
+  {
+    for (let i = 0; i < numCols; i++) {
+      for (let j = 0; j < numRows; j++) {
+        const cell = new PIXI.Graphics();
+        cell.beginFill(0xaaaaaa);
+        cell.drawRoundedRect(
+          -cardSide / 2,
+          -cardSide / 2,
+          cardSide,
+          cardSide,
+          borderRadius
+        );
+        let x = cardSide / 2 + cardPadding;
+        x += i * (cardSide + cardPadding);
+        let y = cardSide / 2 + cardPadding;
+        y += j * (cardSide + cardPadding);
+        cell.position.set(x, y);
+        board.addChild(cell);
+      }
+    }
+  }
+  app.stage.addChild(board);
+
   let cardsContainer = new PIXI.Container();
   let cards: { [key: string]: Card } = {};
   {
-    function onDragStart(event) {
+    function onDragStart(
+      this: CardContainer,
+      event: PIXI.interaction.InteractionEvent
+    ) {
+      const { card } = this;
+      const parent = this.parent;
+
+      card.dragging = {
+        data: event.data,
+        pos: new PIXI.Point(this.position.x, this.position.y),
+      };
+
       // store a reference to the data
       // the reason for this is because of multitouch
       // we want to track the movement of this particular touch
-      this.data = event.data;
       this.alpha = 0.5;
-      this.dragging = true;
-      let parent = this.parent;
       parent.removeChild(this);
       parent.addChild(this);
     }
 
-    function onDragEnd() {
+    function onDragEnd(this: CardContainer) {
+      const { card } = this;
+      card.dragging = null;
       this.alpha = 1;
-      this.dragging = false;
-      // set the interaction data to null
-      this.data = null;
-      layout();
     }
 
-    function onDragMove() {
-      if (this.dragging) {
-        var newPosition = this.data.getLocalPosition(this.parent);
-        this.x = newPosition.x;
-        this.y = newPosition.y;
+    function onDragMove(this: CardContainer) {
+      const { card } = this;
+      if (card.dragging) {
+        card.dragging.pos = card.dragging.data.getLocalPosition(this.parent);
       }
     }
 
@@ -86,19 +135,20 @@ function main() {
     for (const player of [0, 1]) {
       const values = allValues[player];
       for (let i = 0; i < 7; i++) {
-        let cardContainer = new PIXI.Container();
+        let cardContainer = new PIXI.Container() as CardContainer;
         let cardId = uuidv4();
         let card: Card = {
           player,
           value: values[i],
           id: cardId,
           container: cardContainer,
-          pos: {
-            deckPosition: {
+          placement: {
+            deckPlacement: {
               player,
               slot: i,
             },
           },
+          targetPos: new PIXI.Point(0, 0),
         };
         cards[cardId] = card;
         let cardGfx = new PIXI.Graphics();
@@ -123,6 +173,7 @@ function main() {
 
         cardContainer.interactive = true;
         cardContainer.buttonMode = true;
+        cardContainer.card = card;
         cardContainer
           .on("pointerdown", onDragStart)
           .on("pointerup", onDragEnd)
@@ -140,24 +191,29 @@ function main() {
 
     {
       let [p1Deck, p2Deck] = decks;
-      p1Deck.position.set(width * 0.5 - deckWidth * 0.5, deckVertPadding);
+      p1Deck.position.set(width / 2 - deckWidth / 2, deckVertPadding);
 
       p2Deck.position.set(
-        width * 0.5 - deckWidth * 0.5,
+        width / 2 - deckWidth / 2,
         height - deckHeight - deckVertPadding
       );
     }
 
+    board.position.set(
+      width / 2 - boardWidth / 2,
+      height / 2 - boardHeight / 2
+    );
+
     for (const cardId of Object.keys(cards)) {
       const card = cards[cardId];
-      if (card.pos.deckPosition) {
-        const dpos = card.pos.deckPosition;
+      if (card.placement.deckPlacement) {
+        const dpos = card.placement.deckPlacement;
         const deck = decks[dpos.player];
 
         let y = deck.position.y + cardPadding + cardSide / 2;
         let x = deck.position.x + cardPadding + cardSide / 2;
         x += dpos.slot * (cardSide + cardPadding);
-        card.container.position.set(x, y);
+        card.targetPos.set(x, y);
       }
     }
   };
@@ -166,6 +222,23 @@ function main() {
   window.addEventListener("resize", () => {
     app.renderer.resize(window.innerWidth, window.innerHeight);
     layout();
+  });
+
+  PIXI.ticker.shared.autoStart = true;
+  PIXI.ticker.shared.add((delta: number) => {
+    for (const cardId of Object.keys(cards)) {
+      const card = cards[cardId];
+      if (card.dragging) {
+        let { x, y } = card.dragging.pos;
+        card.container.position.set(x, y);
+      } else {
+        let [x, y] = [
+          card.container.position.x * 0.9 + card.targetPos.x * 0.1,
+          card.container.position.y * 0.9 + card.targetPos.y * 0.1,
+        ];
+        card.container.position.set(x, y);
+      }
+    }
   });
 
   document.body.appendChild(app.view);
