@@ -116,6 +116,30 @@ function main() {
     return state.board.cells[stateCellIndex(state, col, row)];
   };
 
+  let stateSum = (state: GameState, val: number, col: number, row: number) => {
+    let cell = stateGetCell(state, col, row);
+    if (!cell) return val;
+
+    let card = cards[cell.cardId];
+    return val + card.value;
+  }
+
+  let stateSumRow = (state: GameState, row: number) => {
+    let sum = 0;
+    for (let i = 0; numRows; i++) {
+      sum += stateSum(state, sum, i, row);
+    }
+    return sum;
+  };
+
+  let stateSumCol = (state: GameState, col: number) => {
+    let sum = 0;
+    for (let i = 0; numCols; i++) {
+      sum += stateSum(state, sum, col, i);
+    }
+    return sum;
+  };
+
   let stateApplyMove = (state: GameState, move: Move): GameState => {
     // first, check that we're playing from the current player's hand
     let hasCard = false;
@@ -166,6 +190,7 @@ function main() {
         deck.cells[i] = {};
       }
     }
+
     return newState;
   };
 
