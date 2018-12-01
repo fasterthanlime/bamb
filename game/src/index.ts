@@ -42,6 +42,23 @@ type CellContainer = PIXI.Container & {
   };
 };
 
+interface GameState {
+  board: BoardState;
+  decks: DeckState[];
+}
+
+interface BoardState {
+  cells: CellState[];
+}
+
+interface CellState {
+  cardId?: string;
+}
+
+interface DeckState {
+  cardIds: string[];
+}
+
 function main() {
   const app = new PIXI.Application({
     width: window.innerWidth,
@@ -63,6 +80,23 @@ function main() {
 
   let playerColors = [0xff8888, 0x8888ff];
   let dragTarget: Card = null;
+
+  let emptyBoard = (cols: number, rows: number) => {
+    let bs: BoardState = {
+      cells: [],
+    };
+    for (let i = 0; i < cols; i++) {
+      for (let j = 0; j < rows; j++) {
+        bs.cells.push({});
+      }
+    }
+    return bs;
+  };
+
+  let gameState: GameState = {
+    board: emptyBoard(numCols, numRows),
+    decks: [{ cardIds: [] }, { cardIds: [] }],
+  };
 
   const decks = [];
   for (const player of [0, 1]) {
@@ -125,7 +159,6 @@ function main() {
       }
     }
   }
-  // app.stage.addChild(board);
 
   let cardsContainer = new PIXI.Container();
   let cards: { [key: string]: Card } = {};
@@ -228,7 +261,6 @@ function main() {
   }
   app.stage.addChild(cardsContainer);
 
-  // FIXME: experimental fuckery below
   app.stage.addChild(board);
 
   let layout = () => {
