@@ -117,11 +117,7 @@ function main() {
   };
 
   let stateSum = (state: GameState, val: number, col: number, row: number) => {
-    let cell = stateGetCell(state, col, row);
-    if (!cell) return val;
-
-    let card = cards[cell.cardId];
-    return val + card.value;
+    return val + stateGetCardValue(state, col, row);
   }
 
   let stateSumRow = (state: GameState, row: number) => {
@@ -146,6 +142,14 @@ function main() {
       return cards[cardId];
     }
     return null;
+  }
+
+  let stateGetCardValue = (state: GameState, col: number, row: number): number => {
+    let card = stateGetCard(state, col, row);
+    if (card) {
+      return card.value;
+    }
+    return 0;
   }
 
   let stateTransformDeck = (state: GameState, player: number, f: (deckState: DeckState) => DeckState): GameState => {
