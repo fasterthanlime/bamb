@@ -11,6 +11,7 @@ import { emptyBoard } from "./transforms";
 import { propagate } from "./propagate";
 import { layout } from "./layout";
 import { createDisplayObjects } from "./create-display-objects";
+import { stateApplyMove } from "./state-apply-move";
 
 interface GameCards {
   [cardId: string]: Card;
@@ -32,6 +33,7 @@ export class Game {
     board: PIXI.Container;
     decks: PIXI.Container[];
     cards: PIXI.Container;
+    trash: PIXI.Container;
   };
   dimensions: {
     borderRadius: number;
@@ -179,51 +181,8 @@ export class Game {
     return { ...state, currentPlayer: 1 - state.currentPlayer };
   }
 
-  stateApplyMove(state: GameState, move: Move): GameState {
-    // first, check that we're playing from the current player's hand
-    let hasCard = false;
-    const currentDeck = state.decks[state.currentPlayer];
-    for (const dc of currentDeck.cells) {
-      if (dc.cardId == move.cardId) {
-        // yes, we are!
-        hasCard = true;
-        break;
-      }
-    }
-
-    if (!hasCard) {
-      console.error(
-        `${move.cardId} is not in deck for player ${state.currentPlayer}`
-      );
-      return state;
-    }
-
-    // second, make sure the target is empty
-    {
-      const { col, row } = move.placement;
-      if (this.stateGetCard(state, col, row)) {
-        console.error(`already has a card at ${col}, ${row}`);
-        return state;
-      }
-    }
-
-    let previousState = state;
-    {
-      let state = this.stateAdvanceTurn(previousState);
-      // remove card from deck
-      state = this.stateTransformDeck(state, move.player, deck =>
-        this.deckRemoveCard(deck, move.cardId)
-      );
-      // place card on board
-      state = this.stateTransformBoard(state, board =>
-        this.boardSetCard(board, move.placement, move.cardId)
-      );
-      return state;
-    }
-  }
-
   applyMove(move: Move) {
-    this.state = this.stateApplyMove(this.state, move);
+    this.state = stateApplyMove(this, this.state, move);
     propagate(this);
     layout(this);
   }

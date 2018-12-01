@@ -31,6 +31,16 @@ export function propagate(game: Game) {
     }
   }
 
+  for (let i = 0; i < game.state.board.trashedCardIds.length; i++) {
+    let cardId = game.state.board.trashedCardIds[i];
+    const card = game.cards[cardId];
+    card.placement = {
+      trashPlacement: {
+        index: i,
+      },
+    };
+  }
+
   let draggableCardIds = {};
   const currentDeck = game.state.decks[game.state.currentPlayer].cells;
   for (const c of currentDeck) {

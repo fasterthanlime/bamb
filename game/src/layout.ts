@@ -20,23 +20,35 @@ export function layout(game: Game, immediate = false) {
     height / 2 - D.boardHeight / 2
   );
 
+  {
+    const trash = game.displayObjects.trash;
+    trash.position.set(D.cardPadding + D.cardSide / 2, height / 2);
+  }
+
   for (const cardId of Object.keys(game.cards)) {
     const card = game.cards[cardId];
     if (card.placement.deckPlacement) {
-      const dpos = card.placement.deckPlacement;
-      const deck = game.displayObjects.decks[dpos.player];
+      const place = card.placement.deckPlacement;
+      const deck = game.displayObjects.decks[place.player];
 
       let y = deck.position.y + D.cardPadding + D.cardSide / 2;
       let x = deck.position.x + D.cardPadding + D.cardSide / 2;
-      x += dpos.slot * (D.cardSide + D.cardPadding);
+      x += place.slot * (D.cardSide + D.cardPadding);
       card.targetPos.set(x, y);
     } else if (card.placement.boardPlacement) {
-      const bpos = card.placement.boardPlacement;
+      const place = card.placement.boardPlacement;
       let x = board.position.x + D.cardPadding + D.cardSide / 2;
-      x += bpos.col * (D.cardSide + D.cardPadding);
+      x += place.col * (D.cardSide + D.cardPadding);
       let y = board.position.y + D.cardPadding + D.cardSide / 2;
-      y += bpos.row * (D.cardSide + D.cardPadding);
+      y += place.row * (D.cardSide + D.cardPadding);
       card.targetPos.set(x, y);
+    } else if (card.placement.trashPlacement) {
+      const place = card.placement.trashPlacement;
+      const trash = game.displayObjects.trash;
+      card.targetPos.set(
+        trash.position.x,
+        trash.position.y + D.cardPadding * place.index
+      );
     }
     if (immediate) {
       let { x, y } = card.targetPos;
