@@ -15,6 +15,7 @@ function main() {
   let game = new Game(app, {
     numCols: 3,
     numRows: 3,
+    maxSum: 7,
   });
 
   app.stage.addChild(game.container);

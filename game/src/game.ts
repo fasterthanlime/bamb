@@ -12,6 +12,7 @@ import { propagate } from "./propagate";
 import { layout } from "./layout";
 import { createDisplayObjects } from "./create-display-objects";
 import { stateApplyMove } from "./state-apply-move";
+import { stateApplyEffects } from "./state-apply-effects";
 
 interface GameCards {
   [cardId: string]: Card;
@@ -20,12 +21,14 @@ interface GameCards {
 export interface GameSettings {
   numCols: number;
   numRows: number;
+  maxSum: number;
 }
 
 export class Game {
   app: PIXI.Application;
   numCols: number;
   numRows: number;
+  maxSum: number;
   state: GameState;
   cards: GameCards;
   container: PIXI.Container;
@@ -52,6 +55,7 @@ export class Game {
     const { numCols, numRows } = settings;
     this.numCols = numCols;
     this.numRows = numRows;
+    this.maxSum = settings.maxSum;
     this.state = {
       currentPlayer: 0,
       board: emptyBoard(numCols, numRows),
@@ -73,17 +77,19 @@ export class Game {
 
   stateSumRow(state: GameState, row: number): number {
     let sum = 0;
-    for (let i = 0; this.numRows; i++) {
-      sum += this.stateGetCardValue(state, i, row);
+    for (let col = 0; col < this.numCols; col++) {
+      sum += this.stateGetCardValue(state, col, row);
     }
+    console.log(`sum for row ${row}: ${sum}`);
     return sum;
   }
 
   stateSumCol(state: GameState, col: number): number {
     let sum = 0;
-    for (let i = 0; this.numCols; i++) {
-      sum += this.stateGetCardValue(state, col, i);
+    for (let row = 0; row < this.numRows; row++) {
+      sum += this.stateGetCardValue(state, col, row);
     }
+    console.log(`sum for col ${col}: ${sum}`);
     return sum;
   }
 
@@ -206,7 +212,11 @@ export class Game {
   }
 
   applyMove(move: Move) {
-    this.state = stateApplyMove(this, this.state, move);
+    let newState = stateApplyMove(this, this.state, move);
+    if (newState != this.state) {
+      newState = stateApplyEffects(this, newState);
+    }
+    this.state = newState;
     propagate(this);
     layout(this);
   }
