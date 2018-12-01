@@ -195,7 +195,7 @@ export class Game {
       const { col, row } = placement;
       let idx = this.cellIndex(col, row);
       board.cells = this.cellsTransform(board.cells, idx, cell => {
-        return { cardId };
+        return cardId ? { cardId } : {};
       });
       return board;
     }

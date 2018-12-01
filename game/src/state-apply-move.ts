@@ -103,6 +103,20 @@ export function stateApplyMove(
       state = game.stateTransformBoard(state, board =>
         game.boardTrashCard(board, move.cardId)
       );
+
+      // perform a swaperoo!
+      let neighborCard = game.stateGetCard(state, newCol, newRow);
+      state = game.stateTransformBoard(state, board =>
+        game.boardSetCard(
+          board,
+          move.placement,
+          neighborCard ? neighborCard.id : null
+        )
+      );
+      state = game.stateTransformBoard(state, board =>
+        game.boardSetCard(board, { col: newCol, row: newRow }, underCard.id)
+      );
+
       return state;
     }
   }
