@@ -183,6 +183,17 @@ function createBoard(game: Game): PIXI.Container {
       }
     }
 
+    function onMouseOut(
+      this: CellContainer,
+      event: PIXI.interaction.InteractionEvent
+    ) {
+      if (game.dragTarget) {
+        if (game.dragTarget.dragging.over == this) {
+          game.dragTarget.dragging.over = null;
+        }
+      }
+    }
+
     for (let i = 0; i < game.numCols; i++) {
       for (let j = 0; j < game.numRows; j++) {
         const cellContainer = new PIXI.Container() as CellContainer;
@@ -211,6 +222,7 @@ function createBoard(game: Game): PIXI.Container {
 
         cellContainer.interactive = true;
         cellContainer.addListener("pointerover", onMouseOver);
+        cellContainer.addListener("pointerout", onMouseOut);
       }
     }
   }
