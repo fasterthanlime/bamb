@@ -28,11 +28,19 @@ interface Card {
   dragging?: {
     data: PIXI.interaction.InteractionData;
     pos: PIXI.Point;
+    over?: CellContainer;
   };
 }
 
 type CardContainer = PIXI.Container & {
   card: Card;
+};
+
+type CellContainer = PIXI.Container & {
+  cell: {
+    col: number;
+    row: number;
+  };
 };
 
 function main() {
@@ -55,6 +63,7 @@ function main() {
   let numRows = 4;
 
   let playerColors = [0xff8888, 0x8888ff];
+  let dragTarget: Card = null;
 
   const decks = [];
   for (const player of [0, 1]) {
@@ -74,11 +83,30 @@ function main() {
   let boardWidth = numCols * (cardSide + cardPadding);
   let boardHeight = numCols * (cardSide + cardPadding);
   {
+    function onMouseOver(
+      this: CellContainer,
+      event: PIXI.interaction.InteractionEvent
+    ) {
+      if (dragTarget) {
+        console.log(`has drag target, currently over `, this.cell);
+        dragTarget.dragging.over = this;
+      } else {
+        console.warn(`no drag target! currently over `, this.cell);
+      }
+    }
+
     for (let i = 0; i < numCols; i++) {
       for (let j = 0; j < numRows; j++) {
-        const cell = new PIXI.Graphics();
-        cell.beginFill(0xaaaaaa);
-        cell.drawRoundedRect(
+        const cellContainer = new PIXI.Container() as CellContainer;
+        cellContainer.cell = {
+          col: i,
+          row: j,
+        };
+        const cellGfx = new PIXI.Graphics();
+        cellGfx.alpha = 0.5;
+        cellGfx.beginFill(0xaaaaaa, 0);
+        cellGfx.lineStyle(1, 0x000000, 1);
+        cellGfx.drawRoundedRect(
           -cardSide / 2,
           -cardSide / 2,
           cardSide,
@@ -89,12 +117,16 @@ function main() {
         x += i * (cardSide + cardPadding);
         let y = cardSide / 2 + cardPadding;
         y += j * (cardSide + cardPadding);
-        cell.position.set(x, y);
-        board.addChild(cell);
+        cellContainer.addChild(cellGfx);
+        cellContainer.position.set(x, y);
+        board.addChild(cellContainer);
+
+        cellContainer.interactive = true;
+        cellContainer.addListener("pointerover", onMouseOver);
       }
     }
   }
-  app.stage.addChild(board);
+  // app.stage.addChild(board);
 
   let cardsContainer = new PIXI.Container();
   let cards: { [key: string]: Card } = {};
@@ -110,10 +142,8 @@ function main() {
         data: event.data,
         pos: new PIXI.Point(this.position.x, this.position.y),
       };
+      dragTarget = card;
 
-      // store a reference to the data
-      // the reason for this is because of multitouch
-      // we want to track the movement of this particular touch
       this.alpha = 0.5;
       parent.removeChild(this);
       parent.addChild(this);
@@ -121,7 +151,19 @@ function main() {
 
     function onDragEnd(this: CardContainer) {
       const { card } = this;
+      const { over } = card.dragging;
+      if (over) {
+        const { col, row } = over.cell;
+        card.placement = {
+          boardPlacement: {
+            col,
+            row,
+          },
+        };
+        layout();
+      }
       card.dragging = null;
+      dragTarget = null;
       this.alpha = 1;
     }
 
@@ -188,6 +230,9 @@ function main() {
   }
   app.stage.addChild(cardsContainer);
 
+  // FIXME: experimental fuckery below
+  app.stage.addChild(board);
+
   let layout = () => {
     let { width, height } = app.renderer;
 
@@ -216,6 +261,13 @@ function main() {
         let x = deck.position.x + cardPadding + cardSide / 2;
         x += dpos.slot * (cardSide + cardPadding);
         card.targetPos.set(x, y);
+      } else if (card.placement.boardPlacement) {
+        const bpos = card.placement.boardPlacement;
+        let x = board.position.x + cardPadding + cardSide / 2;
+        x += bpos.col * (cardSide + cardPadding);
+        let y = board.position.y + cardPadding + cardSide / 2;
+        y += bpos.row * (cardSide + cardPadding);
+        card.targetPos.set(x, y);
       }
     }
   };
@@ -226,6 +278,8 @@ function main() {
     layout();
   });
 
+  const alpha = 0.2;
+
   PIXI.ticker.shared.autoStart = true;
   PIXI.ticker.shared.add((delta: number) => {
     for (const cardId of Object.keys(cards)) {
@@ -235,8 +289,8 @@ function main() {
         card.container.position.set(x, y);
       } else {
         let [x, y] = [
-          card.container.position.x * 0.9 + card.targetPos.x * 0.1,
-          card.container.position.y * 0.9 + card.targetPos.y * 0.1,
+          card.container.position.x * (1 - alpha) + card.targetPos.x * alpha,
+          card.container.position.y * (1 - alpha) + card.targetPos.y * alpha,
         ];
         card.container.position.set(x, y);
       }
