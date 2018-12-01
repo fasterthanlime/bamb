@@ -5,6 +5,11 @@ import * as uuidv4 from "uuid/v4";
 
 const playerColors = [0xec7d75, 0x75c3ec];
 
+const shadowFilter = new DropShadowFilter();
+shadowFilter.alpha = 0.16;
+shadowFilter.distance = 1;
+shadowFilter.blur = 1;
+
 // Create display objects is called right after a new game is started
 export function createDisplayObjects(game: Game) {
   game.container = new PIXI.Container();
@@ -122,7 +127,9 @@ function createCards(game: Game): PIXI.Container {
         });
         let cardGfx = new PIXI.Graphics();
         cardGfx.beginFill(playerColors[player]);
-        cardGfx.filters = [new DropShadowFilter()];
+        {
+          cardGfx.filters = [shadowFilter];
+        }
         cardGfx.drawRoundedRect(
           -D.cardSide / 2,
           -D.cardSide / 2,
