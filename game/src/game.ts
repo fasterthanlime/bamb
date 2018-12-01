@@ -175,18 +175,30 @@ export class Game {
     }
   }
 
+  boardTrashCard(board: BoardState, cardId: string): BoardState {
+    let previousBoard = board;
+    {
+      let board = { ...previousBoard };
+      board.trashedCardIds = [...board.trashedCardIds, cardId];
+      return board;
+    }
+  }
+
   boardSetCard(
-    previousBoard: BoardState,
+    board: BoardState,
     placement: BoardPlacement,
     cardId: string
   ): BoardState {
-    let board = { ...previousBoard };
-    const { col, row } = placement;
-    let idx = this.cellIndex(col, row);
-    board.cells = this.cellsTransform(board.cells, idx, cell => {
-      return { cardId };
-    });
-    return board;
+    let previousBoard = board;
+    {
+      let board = { ...previousBoard };
+      const { col, row } = placement;
+      let idx = this.cellIndex(col, row);
+      board.cells = this.cellsTransform(board.cells, idx, cell => {
+        return { cardId };
+      });
+      return board;
+    }
   }
 
   stateAdvanceTurn(state: GameState): GameState {
