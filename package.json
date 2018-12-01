@@ -1,0 +1,22 @@
+{
+  "name": "ld43",
+  "version": "1.0.0",
+  "description": "LD43 entry",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fasterthanlime/ld43.git"
+  },
+  "keywords": [
+    "cards"
+  ],
+  "author": "Amos Wenger <amoswenger@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fasterthanlime/ld43/issues"
+  },
+  "homepage": "https://github.com/fasterthanlime/ld43#readme"
+}
