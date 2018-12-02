@@ -4,7 +4,7 @@ import { Game } from "./game";
 export function stateApplyEffects(
   game: Game,
   oldState: GameState,
-  newState: GameState
+  newState: GameState,
 ): GameState {
   const oldZones = computeHotZones(game, oldState);
   const newZones = computeHotZones(game, newState);
@@ -23,33 +23,33 @@ export function stateApplyEffects(
   }
 
   console.log(
-    `${rowsToClear.length} rows to clear, ${colsToClear.length} cols to clear`
+    `${rowsToClear.length} rows to clear, ${colsToClear.length} cols to clear`,
   );
   let state = newState;
   if (rowsToClear.length > 0 || colsToClear.length > 0) {
     for (const col of colsToClear) {
       for (let row = 0; row < game.numRows; row++) {
-        const card = game.stateGetCard(state, col, row);
+        const card = game.boardGetCard(state.board, col, row);
         if (card) {
           state = game.stateTransformBoard(state, board =>
-            game.boardTrashCard(board, card.id)
+            game.boardTrashCard(board, card.id),
           );
         }
         state = game.stateTransformBoard(state, board =>
-          game.boardSetCard(board, { col, row }, undefined)
+          game.boardSetCard(board, { col, row }, undefined),
         );
       }
     }
     for (const row of rowsToClear) {
       for (let col = 0; col < game.numCols; col++) {
-        const card = game.stateGetCard(state, col, row);
+        const card = game.boardGetCard(state.board, col, row);
         if (card) {
           state = game.stateTransformBoard(state, board =>
-            game.boardTrashCard(board, card.id)
+            game.boardTrashCard(board, card.id),
           );
         }
         state = game.stateTransformBoard(state, board =>
-          game.boardSetCard(board, { col, row }, undefined)
+          game.boardSetCard(board, { col, row }, undefined),
         );
       }
     }
@@ -68,12 +68,12 @@ export function computeHotZones(game: Game, state: GameState): HotZones {
     hotCols: [],
   };
   for (let row = 0; row < game.numRows; row++) {
-    if (game.stateSumRow(state, row) > game.maxSum) {
+    if (game.boardSumRow(state.board, row) > game.maxSum) {
       zones.hotRows.push(row);
     }
   }
   for (let col = 0; col < game.numCols; col++) {
-    if (game.stateSumCol(state, col) > game.maxSum) {
+    if (game.boardSumCol(state.board, col) > game.maxSum) {
       zones.hotCols.push(col);
     }
   }

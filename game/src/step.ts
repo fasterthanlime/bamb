@@ -1,13 +1,18 @@
 import { Game } from "./game";
+import { processAI } from "./ai";
 
 const alpha = 0.1;
 
 // Step is called every tick
 export function step(game: Game, delta: number) {
-  for (const player of [0, 1]) {
+  for (const player of game.players) {
     const deck = game.displayObjects.decks[player];
     if (player == game.state.currentPlayer) {
       deck.alpha = deck.alpha * (1 - alpha) + 1 * alpha;
+
+      if (player > 0) {
+        processAI(game, player);
+      }
     } else {
       deck.alpha = deck.alpha * (1 - alpha) + 0 * alpha;
     }

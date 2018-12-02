@@ -179,7 +179,7 @@ function createBoard(game: Game): PIXI.Container {
       if (game.dragTarget) {
         console.log(`has drag target, currently over `, this.cell);
         const { col, row } = this.cell;
-        const cs = game.stateGetCell(game.state, col, row);
+        const cs = game.boardGetCell(game.state.board, col, row);
         console.log(`cs = `, cs);
         game.dragTarget.dragging.over = this;
       }
