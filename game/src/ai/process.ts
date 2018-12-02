@@ -61,9 +61,10 @@ function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
     ).toFixed()}% chance of winning`,
   );
 
-  return _.sample<ScoredMove>(
-    listMoves(game, rootState, rootState.currentPlayer),
-  );
+  // return most visited node
+  let sortedMoves = _.sortBy(rootNode.childNodes, c => c.visits);
+  let bestNode = _.last(sortedMoves);
+  return bestNode ? bestNode.move : null;
 }
 
 export function processAI(game: Game) {
