@@ -4,7 +4,7 @@ import { Game } from "./game";
 export function stateApplyMove(
   game: Game,
   prevState: GameState,
-  move: Move
+  move: Move,
 ): GameState {
   // first, check that we're playing from the current player's hand
   let hasCard = false;
@@ -19,14 +19,14 @@ export function stateApplyMove(
 
   if (!hasCard) {
     console.error(
-      `${move.cardId} is not in deck for player ${prevState.currentPlayer}`
+      `${move.cardId} is not in deck for player ${prevState.currentPlayer}`,
     );
     return prevState;
   }
 
   const { col, row } = move.placement;
   let card = game.cards[move.cardId];
-  let underCard = game.stateGetCard(game.state, col, row);
+  let underCard = game.boardGetCard(game.state.board, col, row);
 
   if (typeof card.value === "number") {
     if (underCard) {
@@ -47,19 +47,19 @@ export function stateApplyMove(
       if (underCard) {
         // place under card back into deck
         state = game.stateTransformBoard(state, board =>
-          game.boardSetCard(board, move.placement, undefined)
+          game.boardSetCard(board, move.placement, undefined),
         );
         state = game.stateTransformDeck(state, move.player, deck =>
-          game.deckAddCard(deck, underCard.id)
+          game.deckAddCard(deck, underCard.id),
         );
       }
 
       // remove card from deck & place it on board
       state = game.stateTransformDeck(state, move.player, deck =>
-        game.deckRemoveCard(deck, move.cardId)
+        game.deckRemoveCard(deck, move.cardId),
       );
       state = game.stateTransformBoard(state, board =>
-        game.boardSetCard(board, move.placement, move.cardId)
+        game.boardSetCard(board, move.placement, move.cardId),
       );
       return state;
     }
@@ -96,23 +96,23 @@ export function stateApplyMove(
 
       // remove card from deck & place it into trash
       state = game.stateTransformDeck(state, move.player, deck =>
-        game.deckRemoveCard(deck, move.cardId)
+        game.deckRemoveCard(deck, move.cardId),
       );
       state = game.stateTransformBoard(state, board =>
-        game.boardTrashCard(board, move.cardId)
+        game.boardTrashCard(board, move.cardId),
       );
 
       // perform a swaperoo!
-      let neighborCard = game.stateGetCard(state, newCol, newRow);
+      let neighborCard = game.boardGetCard(state.board, newCol, newRow);
       state = game.stateTransformBoard(state, board =>
         game.boardSetCard(
           board,
           move.placement,
-          neighborCard ? neighborCard.id : null
-        )
+          neighborCard ? neighborCard.id : null,
+        ),
       );
       state = game.stateTransformBoard(state, board =>
-        game.boardSetCard(board, { col: newCol, row: newRow }, underCard.id)
+        game.boardSetCard(board, { col: newCol, row: newRow }, underCard.id),
       );
 
       return state;

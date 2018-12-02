@@ -51,6 +51,7 @@ export class Game {
     boardHeight: number;
   };
   dragTarget: Card;
+  players: Array<number>;
 
   constructor(app: PIXI.Application, settings: GameSettings) {
     this.app = app;
@@ -64,6 +65,7 @@ export class Game {
       decks: [{ cells: [] }, { cells: [] }],
     };
     this.cards = {};
+    this.players = [0, 1];
     createDisplayObjects(this);
     propagate(this);
     layout(this, true);
@@ -73,36 +75,36 @@ export class Game {
     return col + row * this.numCols;
   }
 
-  stateGetCell(state: GameState, col: number, row: number): CellState {
-    return state.board.cells[this.cellIndex(col, row)];
+  boardGetCell(state: BoardState, col: number, row: number): CellState {
+    return state.cells[this.cellIndex(col, row)];
   }
 
-  stateSumRow(state: GameState, row: number): number {
+  boardSumRow(state: BoardState, row: number): number {
     let sum = 0;
     for (let col = 0; col < this.numCols; col++) {
-      sum += this.stateGetCardValue(state, col, row);
+      sum += this.boardGetCardValue(state, col, row);
     }
     return sum;
   }
 
-  stateSumCol(state: GameState, col: number): number {
+  boardSumCol(state: BoardState, col: number): number {
     let sum = 0;
     for (let row = 0; row < this.numRows; row++) {
-      sum += this.stateGetCardValue(state, col, row);
+      sum += this.boardGetCardValue(state, col, row);
     }
     return sum;
   }
 
-  stateGetCard = (state: GameState, col: number, row: number): Card => {
-    const { cardId } = this.stateGetCell(state, col, row);
+  boardGetCard = (state: BoardState, col: number, row: number): Card => {
+    const { cardId } = this.boardGetCell(state, col, row);
     if (cardId) {
       return this.cards[cardId];
     }
     return null;
   };
 
-  stateGetCardValue(state: GameState, col: number, row: number): number {
-    let card = this.stateGetCard(state, col, row);
+  boardGetCardValue(state: BoardState, col: number, row: number): number {
+    let card = this.boardGetCard(state, col, row);
     if (card) {
       return card.value;
     }
@@ -112,7 +114,7 @@ export class Game {
   stateTransformDeck(
     prevState: GameState,
     player: number,
-    f: (deckState: DeckState) => DeckState
+    f: (deckState: DeckState) => DeckState,
   ): GameState {
     let state = {
       ...prevState,
@@ -124,7 +126,7 @@ export class Game {
 
   stateTransformBoard(
     state: GameState,
-    f: (board: BoardState) => BoardState
+    f: (board: BoardState) => BoardState,
   ): GameState {
     return { ...state, board: f(state.board) };
   }
@@ -148,7 +150,7 @@ export class Game {
   cellsTransform(
     cells: CellState[],
     idx: number,
-    f: (cell: CellState) => CellState
+    f: (cell: CellState) => CellState,
   ): CellState[] {
     return this.cellsSet(cells, idx, f(cells[idx]));
   }
@@ -178,7 +180,7 @@ export class Game {
   boardSetCard(
     prevBoard: BoardState,
     placement: BoardPlacement,
-    cardId: string
+    cardId: string,
   ): BoardState {
     let board = { ...prevBoard };
     const { col, row } = placement;

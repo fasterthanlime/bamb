@@ -21,7 +21,7 @@ export function propagate(game: Game) {
 
   for (let col = 0; col < game.numCols; col++) {
     for (let row = 0; row < game.numRows; row++) {
-      const cell = game.stateGetCell(game.state, col, row);
+      const cell = game.boardGetCell(game.state.board, col, row);
       if (cell.cardId) {
         const card = game.cards[cell.cardId];
         card.placement = {
@@ -75,13 +75,13 @@ export function propagate(game: Game) {
   };
 
   for (let col = 0; col < game.numCols; col++) {
-    const sum = game.stateSumCol(game.state, col);
+    const sum = game.boardSumCol(game.state.board, col);
     let textObj = game.displayObjects.sums.cols[col];
     setSum(textObj, sum);
   }
 
   for (let row = 0; row < game.numRows; row++) {
-    const sum = game.stateSumRow(game.state, row);
+    const sum = game.boardSumRow(game.state.board, row);
     let textObj = game.displayObjects.sums.rows[row];
     setSum(textObj, sum);
   }
