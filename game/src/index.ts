@@ -4,7 +4,7 @@ import { layout } from "./layout";
 import "./main.css";
 import { step } from "./step";
 import * as FontFaceObserver from "fontfaceobserver";
-import { WorkerOutgoingMessage } from "./types";
+import { WorkerOutgoingMessage } from "./types-worker";
 
 function main() {
   const app = new PIXI.Application({
@@ -45,12 +45,20 @@ function main() {
 
     if (msg.task === "processAI") {
       console.warn(`Got processAI response!`);
-      let { move } = msg;
-      if (move) {
-        game.applyMove(move.move);
+      let { result } = msg;
+      if (result.move) {
+        game.applyMove(result.move.move);
       } else {
         console.log(`AI could not find move, passing`);
         game.pass();
+      }
+
+      {
+        let humanChance = result.stats.humanChance;
+        let huDeck = game.displayObjects.decks[game.state.currentPlayer];
+        huDeck.text.text = `your turn!`;
+        let aiDeck = game.displayObjects.decks[1 - game.state.currentPlayer];
+        aiDeck.text.text = `~${(100 - humanChance).toFixed()}% win`;
       }
     } else {
       console.log(`Got message from worker: `, ev);

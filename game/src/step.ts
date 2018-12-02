@@ -7,9 +7,9 @@ export function step(game: Game, delta: number) {
   for (const player of [0, 1]) {
     const deck = game.displayObjects.decks[player];
     if (player == game.state.currentPlayer) {
-      deck.alpha = deck.alpha * (1 - alpha) + 1 * alpha;
+      deck.bg.alpha = deck.bg.alpha * (1 - alpha) + 1 * alpha;
     } else {
-      deck.alpha = deck.alpha * (1 - alpha) + 0 * alpha;
+      deck.bg.alpha = deck.bg.alpha * (1 - alpha) + 0 * alpha;
     }
   }
 

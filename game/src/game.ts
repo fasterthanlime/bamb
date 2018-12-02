@@ -8,7 +8,6 @@ import {
   Move,
   SumsGraphics,
   DecksGraphics,
-  WorkerIncomingMessage,
 } from "./types";
 import { emptyBoard } from "./transforms";
 import { propagate } from "./propagate";
@@ -17,6 +16,7 @@ import { createDisplayObjects } from "./create-display-objects";
 import { play } from "./rules/play";
 import { RecordingConsequences } from "./rules/consequences";
 import { GameBase } from "./game-base";
+import { WorkerIncomingMessage } from "./types-worker";
 
 export interface GameCards {
   [cardId: string]: Card;
@@ -37,6 +37,21 @@ export enum PlayerKind {
 export interface Player {
   name: string;
   kind: PlayerKind;
+}
+
+export interface GamePhase {
+  movePhase?: MovePhase;
+  transitionPhase?: TransitionPhase;
+  gameOverPhase?: GameOverPhase;
+}
+
+export interface MovePhase {}
+export interface TransitionPhase {
+  cons: RecordingConsequences;
+  newState: GameState;
+}
+export interface GameOverPhase {
+  scores: number[];
 }
 
 export class Game extends GameBase {
@@ -63,6 +78,7 @@ export class Game extends GameBase {
   cards: GameCards = {};
   dragTarget: Card;
   humanWinChance = 100;
+  phase: GamePhase;
 
   constructor(app: PIXI.Application, worker: Worker, settings: GameSettings) {
     super();
@@ -70,6 +86,9 @@ export class Game extends GameBase {
     this.worker = worker;
     this.app = app;
 
+    this.phase = {
+      movePhase: {},
+    };
     createDisplayObjects(this);
     propagate(this);
     layout(this, true);
@@ -88,6 +107,7 @@ export class Game extends GameBase {
       console.log(`+${s.millis}ms: ${s.text}`);
     }
 
+    this.phase = {};
     this.state = nextState;
     propagate(this);
     layout(this);

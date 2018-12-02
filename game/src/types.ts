@@ -21,16 +21,6 @@ export interface CardPlacement {
   trashPlacement?: TrashPlacement;
 }
 
-export interface WorkerIncomingMessage {
-  task: "processAI";
-  gameMessage: GameBaseMessage;
-}
-
-export interface WorkerOutgoingMessage {
-  task: "processAI";
-  move: ScoredMove;
-}
-
 export interface Move {
   player: number;
   cardId: string;
@@ -95,5 +85,6 @@ export type DecksGraphics = DeckGraphics[];
 
 export interface DeckGraphics {
   container: PIXI.Container;
+  bg: PIXI.DisplayObject;
   text: PIXI.Text;
 }

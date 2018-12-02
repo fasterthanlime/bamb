@@ -73,6 +73,7 @@ function createDecks(game: Game): DecksGraphics {
 
     decks.push({
       container: deck,
+      bg: rect,
       text,
     });
     game.container.addChild(deck);
