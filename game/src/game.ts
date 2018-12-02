@@ -9,6 +9,8 @@ import {
   SumsGraphics,
   DecksGraphics,
   UIContainer,
+  CellContainer,
+  BoardContainer,
 } from "./types";
 import { emptyBoard } from "./transforms";
 import { propagate } from "./propagate";
@@ -60,7 +62,7 @@ export class Game extends GameBase {
   app: PIXI.Application;
   container: PIXI.Container;
   displayObjects: {
-    board: PIXI.Container;
+    board: BoardContainer;
     decks: DecksGraphics;
     cards: PIXI.Container;
     trash: PIXI.Container;
@@ -128,5 +130,40 @@ export class Game extends GameBase {
 
   sendWorkerMessage(msg: WorkerIncomingMessage) {
     this.worker.postMessage(msg);
+  }
+
+  setDragTarget(card: Card) {
+    let oldTarget = this.dragTarget;
+    if (oldTarget) {
+      let c = oldTarget.container;
+      c.rotation = 0;
+      c.scale.set(1, 1);
+    }
+
+    this.dragTarget = card;
+    if (this.dragTarget) {
+      let c = this.dragTarget.container;
+      c.rotation = (10 / 180) * Math.PI;
+      c.scale.set(0.9, 0.9);
+    }
+    propagate(this);
+  }
+
+  dragOver(cc: CellContainer) {
+    if (!this.dragTarget) {
+      return;
+    }
+    this.dragTarget.dragging.over = cc;
+    propagate(this);
+  }
+
+  dragOut(cc: CellContainer) {
+    if (!this.dragTarget) {
+      return;
+    }
+    if (this.dragTarget && this.dragTarget.dragging.over === cc) {
+      this.dragTarget.dragging.over = null;
+      propagate(this);
+    }
   }
 }

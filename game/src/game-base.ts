@@ -127,7 +127,7 @@ export class GameBase implements GameBaseMessage {
 
   boardGetCardValue(state: BoardState, col: number, row: number): number {
     let card = this.boardGetCard(state, col, row);
-    if (card) {
+    if (card && typeof card.value === "number") {
       return card.value;
     }
     return 0;

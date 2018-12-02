@@ -1,5 +1,9 @@
 import { Game, PlayerKind } from "./game";
 import { computeScore } from "./ai/compute-score";
+import { play } from "./rules/play";
+import { nullConsequences } from "./rules/consequences";
+import { placeCard } from "./rules/place-card";
+import { playerColors } from "./create-display-objects";
 
 // Translates `game.state` into `game.cards`,
 // usually running after playing a move.
@@ -64,27 +68,127 @@ export function propagate(game: Game) {
     card.container.interactive = draggableCardIds[card.spec.id];
   }
 
-  let setSum = (textObj: PIXI.Text, sum: number) => {
+  let setSum = (textObj: PIXI.Text, sum: any) => {
     textObj.text = `${sum}`;
     textObj.style.fontSize = 28;
+    textObj.alpha = 1;
+    if (sum === "x") {
+      textObj.style.fill = "red";
+    } else if (sum === game.maxSum) {
+      textObj.style.fill = "orange";
+    } else {
+      textObj.alpha = 0;
+      textObj.style.fill = "black";
+    }
   };
 
-  for (let col = 0; col < game.numCols; col++) {
-    const sum = game.boardSumCol(game.state.board, col);
-    let textObj = game.displayObjects.sums.cols[col];
-    setSum(textObj, sum);
+  // clear highlights by default
+  for (const highlight of game.displayObjects.board.highlights) {
+    highlight.alpha = 0;
+    highlight.tint = 0xffdc00; // yellow
   }
 
-  for (let row = 0; row < game.numRows; row++) {
-    const sum = game.boardSumRow(game.state.board, row);
-    let textObj = game.displayObjects.sums.rows[row];
-    setSum(textObj, sum);
+  if (game.dragTarget && game.dragTarget.dragging.over) {
+    const card = game.dragTarget;
+    const drop = game.dragTarget.dragging.over;
+    let nextState = placeCard(
+      game,
+      game.state,
+      {
+        cardId: card.spec.id,
+        placement: { col: drop.cell.col, row: drop.cell.row },
+        player: game.state.currentPlayer,
+      },
+      nullConsequences,
+    );
+
+    if (nextState === game.state) {
+      // invalid move, highlight invalid cell
+      {
+        const { col, row } = drop.cell;
+        let highlight =
+          game.displayObjects.board.highlights[game.cellIndex(col, row)];
+        highlight.tint = 0xff0000;
+        highlight.alpha = 1;
+      }
+
+      for (let col = 0; col < game.numCols; col++) {
+        let textObj = game.displayObjects.sums.cols[col];
+        setSum(textObj, 0);
+      }
+      for (let row = 0; row < game.numRows; row++) {
+        let textObj = game.displayObjects.sums.rows[row];
+        setSum(textObj, 0);
+      }
+    } else {
+      // valid move, highlight target cell
+      {
+        const { col, row } = drop.cell;
+        let highlight =
+          game.displayObjects.board.highlights[game.cellIndex(col, row)];
+        highlight.alpha = 1;
+      }
+
+      for (let col = 0; col < game.numCols; col++) {
+        const sum = game.boardSumCol(nextState.board, col);
+        let textObj = game.displayObjects.sums.cols[col];
+        setSum(textObj, sum);
+
+        if (sum === game.maxSum) {
+          for (let row = 0; row < game.numRows; row++) {
+            let highlight =
+              game.displayObjects.board.highlights[game.cellIndex(col, row)];
+            highlight.alpha = 1;
+          }
+        }
+      }
+
+      for (let row = 0; row < game.numRows; row++) {
+        const sum = game.boardSumRow(nextState.board, row);
+        let textObj = game.displayObjects.sums.rows[row];
+        setSum(textObj, sum);
+
+        if (sum === game.maxSum) {
+          for (let col = 0; col < game.numCols; col++) {
+            let highlight =
+              game.displayObjects.board.highlights[game.cellIndex(col, row)];
+            highlight.alpha = 1;
+          }
+        }
+      }
+    }
+  } else {
+    for (let col = 0; col < game.numCols; col++) {
+      const sum = game.boardSumCol(game.state.board, col);
+      let textObj = game.displayObjects.sums.cols[col];
+      setSum(textObj, sum);
+    }
+
+    for (let row = 0; row < game.numRows; row++) {
+      const sum = game.boardSumRow(game.state.board, row);
+      let textObj = game.displayObjects.sums.rows[row];
+      setSum(textObj, sum);
+    }
   }
 
   let dex = game.displayObjects.decks;
+  let scores = [0, 0];
   for (const player of [0, 1]) {
-    let score = computeScore(game, game.state, player);
-    dex[player].text.text = `${score} pts`;
+    scores[player] = computeScore(game, game.state, player);
+  }
+
+  for (const player of [0, 1]) {
+    let score = scores[player];
+    let otherScore = scores[1 - player];
+    let t = dex[player].text;
+    t.text = `${score} pts`;
+    if (score > otherScore) {
+      t.tint = playerColors[player];
+      t.scale.set(1, 1);
+    } else {
+      t.tint = 0xaaaaaa;
+      t.scale.set(0.7, 0.7);
+    }
   }
 
   if (game.phase.movePhase) {

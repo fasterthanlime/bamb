@@ -62,7 +62,7 @@ export function placeCard(
       );
 
       cons.snapshot({
-        millis: underCard ? 500 : 1000,
+        millis: 500,
         text: `${game.playerName(move.player)} plays a ${
           card.value
         } on ${onWhat}`,
@@ -119,8 +119,14 @@ export function placeCard(
         game.deckRemoveCard(deck, move.cardId),
       );
       state = game.stateTransformBoard(state, board =>
-        game.boardTrashCard(board, move.cardId),
+        game.boardSetCard(board, move.placement, move.cardId),
       );
+
+      cons.snapshot({
+        state,
+        millis: 500,
+        text: `${game.playerName(move.player)} plays an arrow card`,
+      });
 
       // perform a swaperoo!
       let neighborCard = game.boardGetCard(state.board, newCol, newRow);
@@ -134,6 +140,15 @@ export function placeCard(
       state = game.stateTransformBoard(state, board =>
         game.boardSetCard(board, { col: newCol, row: newRow }, underCard.id),
       );
+      state = game.stateTransformBoard(state, board =>
+        game.boardTrashCard(board, move.cardId),
+      );
+
+      cons.snapshot({
+        state,
+        millis: 500,
+        text: `cards move`,
+      });
 
       return state;
     }

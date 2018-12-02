@@ -45,6 +45,10 @@ export interface Card {
   };
 }
 
+export type BoardContainer = PIXI.Container & {
+  highlights: PIXI.Graphics[];
+};
+
 export type CardContainer = PIXI.Container & {
   card: Card;
 };

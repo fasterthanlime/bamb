@@ -6,11 +6,11 @@ import {
   SumsGraphics,
   DecksGraphics,
   UIContainer,
+  BoardContainer,
 } from "./types";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
-import * as uuidv4 from "uuid/v4";
 
-const playerColors = [0xec7d75, 0x75c3ec];
+export const playerColors = [0x3d9970, 0x001f3f];
 
 export const fontFamily = "Roboto";
 export const iconFontFamily = "FontAwesome";
@@ -80,8 +80,9 @@ function createDecks(game: Game): DecksGraphics {
     deck.addChild(rect);
 
     let text = new PIXI.Text(`${game.playerName(player)}`, {
-      fontSize: 42,
+      fontSize: 32,
       fontFamily,
+      fill: 0xffffff,
     });
     text.anchor.set(0.5, 0.5);
     text.position.set(-60, D.deckHeight / 2);
@@ -113,9 +114,9 @@ function createCards(game: Game): PIXI.Container {
         data: event.data,
         pos: new PIXI.Point(this.position.x, this.position.y),
       };
-      game.dragTarget = card;
+      game.setDragTarget(card);
 
-      this.alpha = 0.5;
+      this.alpha = 0.7;
       parent.removeChild(this);
       parent.addChild(this);
     }
@@ -132,7 +133,7 @@ function createCards(game: Game): PIXI.Container {
         });
       }
       card.dragging = null;
-      game.dragTarget = null;
+      game.setDragTarget(null);
       this.alpha = 1;
     }
 
@@ -156,7 +157,7 @@ function createCards(game: Game): PIXI.Container {
       let cardGfx = new PIXI.Graphics();
       cardGfx.beginFill(playerColors[spec.player]);
       {
-        cardGfx.filters = [shadowFilter];
+        // cardGfx.filters = [shadowFilter];
       }
       cardGfx.drawRoundedRect(
         -D.cardSide / 2,
@@ -209,40 +210,33 @@ function createCards(game: Game): PIXI.Container {
   return cards;
 }
 
-function createBoard(game: Game): PIXI.Container {
+function createBoard(game: Game): BoardContainer {
   const D = game.dimensions;
 
-  const board = new PIXI.Container();
+  const board = new PIXI.Container() as BoardContainer;
+  board.highlights = [];
   {
     function onMouseOver(
       this: CellContainer,
       event: PIXI.interaction.InteractionEvent,
     ) {
-      if (game.dragTarget) {
-        const { col, row } = this.cell;
-        const cs = game.boardGetCell(game.state.board, col, row);
-        game.dragTarget.dragging.over = this;
-      }
+      game.dragOver(this);
     }
 
     function onMouseOut(
       this: CellContainer,
       event: PIXI.interaction.InteractionEvent,
     ) {
-      if (game.dragTarget) {
-        if (game.dragTarget.dragging.over == this) {
-          game.dragTarget.dragging.over = null;
-        }
-      }
+      game.dragOut(this);
     }
 
     let cellSide = D.cardSide;
-    for (let i = 0; i < game.numCols; i++) {
-      for (let j = 0; j < game.numRows; j++) {
+    for (let row = 0; row < game.numRows; row++) {
+      for (let col = 0; col < game.numCols; col++) {
         const cellContainer = new PIXI.Container() as CellContainer;
         cellContainer.cell = {
-          col: i,
-          row: j,
+          col,
+          row,
         };
         const cellGfx = new PIXI.Graphics();
         cellGfx.alpha = 0.5;
@@ -256,12 +250,27 @@ function createBoard(game: Game): PIXI.Container {
           D.borderRadius,
         );
         let x = D.cardSide / 2 + D.cardPadding;
-        x += i * (D.cardSide + D.cardPadding);
+        x += col * (D.cardSide + D.cardPadding);
         let y = D.cardSide / 2 + D.cardPadding;
-        y += j * (D.cardSide + D.cardPadding);
+        y += row * (D.cardSide + D.cardPadding);
         cellContainer.addChild(cellGfx);
         cellContainer.position.set(x, y);
         board.addChild(cellContainer);
+
+        let highlightSide = cellSide + 4;
+        let highlight = new PIXI.Graphics();
+        highlight.tint = 0xff0000;
+        highlight.beginFill(0xffffff, 0.2);
+        highlight.drawRoundedRect(
+          -highlightSide / 2,
+          -highlightSide / 2,
+          highlightSide,
+          highlightSide,
+          D.borderRadius,
+        );
+        highlight.position.set(x, y);
+        board.addChild(highlight);
+        board.highlights.push(highlight);
 
         cellContainer.interactive = true;
         cellContainer.addListener("pointerover", onMouseOver);
@@ -296,7 +305,7 @@ function createSums(game: Game): SumsGraphics {
     text.anchor.set(0.5, 0.5);
     text.position.set(
       D.cardSide / 2 + D.cardPadding + (D.cardSide + D.cardPadding) * col,
-      -8,
+      -12,
     );
     container.addChild(text);
     sums.cols.push(text);
@@ -326,7 +335,7 @@ function createGameUI(game: Game): UIContainer {
     let restartButton = new PIXI.Graphics();
     restartButton.beginFill(0xffffff);
     restartButton.drawRoundedRect(1250, 700, 50, 50, 10);
-    restartButton.filters = [shadowFilter];
+    // restartButton.filters = [shadowFilter];
 
     restartButton.addChild(createIcon(0, 0, 100, 100, Icon.Refresh, 25, [1]));
 

@@ -3,7 +3,7 @@ import { GameSnapshot } from "./rules/consequences";
 import { layout } from "./layout";
 import { propagate } from "./propagate";
 
-const alpha = 0.05;
+const alpha = 0.15;
 
 // Step is called every tick
 export function step(game: Game, delta: number) {
