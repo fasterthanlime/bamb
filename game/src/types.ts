@@ -95,4 +95,5 @@ export interface DeckGraphics {
   container: PIXI.Container;
   bg: PIXI.DisplayObject;
   text: PIXI.Text;
+  clock: PIXI.Text;
 }

@@ -39,7 +39,7 @@ export function layout(game: Game, immediate = false) {
     const trash = game.displayObjects.trash;
     trash.position.set(
       Math.max(board.position.x - 160, D.cardPadding + D.cardSide / 2),
-      height / 2,
+      height / 2 - (D.cardSide + D.cardPadding),
     );
   }
 
@@ -63,10 +63,23 @@ export function layout(game: Game, immediate = false) {
     } else if (card.placement.trashPlacement) {
       const place = card.placement.trashPlacement;
       const trash = game.displayObjects.trash;
+
+      let col = 0;
+      let row = 0;
+      let maxCols = 4;
+      for (let i = 0; i < place.index; i++) {
+        col++;
+        if (col >= maxCols) {
+          col = 0;
+          row++;
+        }
+      }
+
       card.targetPos.set(
-        trash.position.x,
-        trash.position.y + D.cardPadding * place.index,
+        trash.position.x + 0.5 * (D.cardSide + D.cardPadding) * col,
+        trash.position.y + 0.5 * (D.cardSide + D.cardPadding) * row,
       );
+      card.container.scale.set(0.5, 0.5);
     }
     if (immediate) {
       let { x, y } = card.targetPos;

@@ -1,4 +1,4 @@
-import { Game } from "./game";
+import { Game, PlayerKind } from "./game";
 import { GameSnapshot } from "./rules/consequences";
 import { layout } from "./layout";
 import { propagate } from "./propagate";
@@ -61,6 +61,26 @@ export function step(game: Game, delta: number) {
         card.container.position.y * (1 - alpha) + card.targetPos.y * alpha,
       ];
       card.container.position.set(x, y);
+    }
+  }
+
+  for (const player of [0, 1]) {
+    const clock = game.displayObjects.decks[player].clock;
+    clock.alpha = 0;
+  }
+
+  if (game.phase.movePhase) {
+    let player = game.state.currentPlayer;
+    let currentPlayer = game.players[player];
+    if (currentPlayer.kind === PlayerKind.AI) {
+      const clock = game.displayObjects.decks[player].clock;
+      clock.alpha = 1;
+      let scale = clock.scale.x;
+      scale += delta * 0.005;
+      if (scale > 1) {
+        scale = 0.7;
+      }
+      clock.scale.set(scale, scale);
     }
   }
 }

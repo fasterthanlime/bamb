@@ -87,13 +87,23 @@ function createDecks(game: Game): DecksGraphics {
     });
     text.anchor.set(0.5, 0.5);
     text.position.set(-60, D.deckHeight / 2);
-    // text.position.y += (D.deckHeight / 2) * (player === 0 ? 1 : -1);
     deck.addChild(text);
+
+    let clock = new PIXI.Text(Icon.Clock, {
+      fontSize: 32,
+      fontFamily: "FontAwesome",
+      fill: 0xffffff,
+    });
+    clock.anchor.set(0.5, 0.5);
+    clock.alpha = 0;
+    clock.position.set(text.position.x, text.position.y + 60);
+    deck.addChild(clock);
 
     decks.push({
       container: deck,
       bg: rect,
       text,
+      clock,
     });
     game.container.addChild(deck);
   }
@@ -359,6 +369,7 @@ enum Icon {
   ArrowRight = "\uf061",
   ArrowUp = "\uf062",
   ArrowDown = "\uf063",
+  Clock = "\uf017",
 }
 
 function createIcon(
