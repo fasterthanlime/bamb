@@ -302,22 +302,49 @@ function createSums(game: Game): SumsGraphics {
 function createGameUI(game: Game): UIContainer {
   const D = game.dimensions;
 
-  const board = new PIXI.Container();
+  const uiContainer = new PIXI.Container();
   {
     let restartButton = new PIXI.Graphics();
     restartButton.beginFill(0xffffff);
     restartButton.drawRoundedRect(1250, 700, 50, 50, 10);
     restartButton.filters = [shadowFilter];
-    restartButton.endFill();
 
-    let rBtnText = new PIXI.Text("\uf003", {
-      fontFamily: iconFontFamily,
-      fill: "black",
-    });
-    restartButton.addChild(rBtnText);
-    board.addChild(restartButton);
+    restartButton.addChild(
+      createIcon(1250, 700, 100, 100, Icon.Refresh, 25, [1]),
+    );
+
+    uiContainer.addChild(restartButton);
+
+    uiContainer.interactive = true;
+    uiContainer.addListener("pointerup", e => (game.shouldRestart = true));
   }
 
-  game.container.addChild(board);
-  return board;
+  game.container.addChild(uiContainer);
+  return uiContainer;
+}
+
+enum Icon {
+  Refresh = "",
+}
+
+function createIcon(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  icon: Icon,
+  size: number,
+  alignment: number[],
+): PIXI.Text {
+  let rBtnText = new PIXI.Text(icon, {
+    fontFamily: iconFontFamily,
+    fontSize: size,
+    align: "center",
+    fill: "#444444",
+  });
+  rBtnText.position.set(
+    x + (size * (alignment[0] | 0)) / 2,
+    y + (size * (alignment[1] | alignment[0] | 0)) / 2,
+  );
+  return rBtnText;
 }

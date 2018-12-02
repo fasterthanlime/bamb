@@ -62,6 +62,7 @@ export class Game {
   };
   dragTarget: Card;
   players: Player[];
+  shouldRestart: boolean;
 
   constructor(app: PIXI.Application, settings: GameSettings) {
     this.app = app;
