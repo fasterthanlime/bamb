@@ -89,6 +89,6 @@ export function propagate(game: Game) {
   if (currentPlayer.kind == PlayerKind.AI) {
     setTimeout(() => {
       processAI(game);
-    }, 1000);
+    }, 250);
   }
 }

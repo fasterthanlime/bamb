@@ -212,4 +212,31 @@ export class Game {
     propagate(this);
     layout(this);
   }
+
+  stateGetResult(state: GameState, player: number): number {
+    let scores = [0, 0];
+    for (const c of state.board.cells) {
+      if (!c.cardId) {
+        continue;
+      }
+      const card = this.cards[c.cardId];
+      scores[card.player] += 100;
+      scores[card.player] += card.value;
+    }
+    let ourScore = scores[player];
+    let theirScore = scores[1 - player];
+
+    if (ourScore > theirScore) {
+      // win
+      return 1;
+    }
+
+    if (ourScore < theirScore) {
+      // loss
+      return 0;
+    }
+
+    // draw
+    return 0.5;
+  }
 }

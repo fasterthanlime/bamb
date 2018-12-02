@@ -111,10 +111,8 @@ function createCards(game: Game): PIXI.Container {
     }
 
     const allValues = [
-      // [1, 2, 2, 3, 4, 4, 5, "L", "R", "U", "D"],
-      // [1, 2, 2, 3, 4, 4, 5, "L", "R", "U", "D"],
-      [1, 3, 5],
-      [1, 3, 5],
+      [1, 2, 3, 4, 5, 6, 7, "L", "R", "U", "D"],
+      [1, 2, 3, 4, 5, 6, 7, "L", "R", "U", "D"],
     ];
     for (const player of [0, 1]) {
       const values = allValues[player];

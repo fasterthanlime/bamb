@@ -14,9 +14,9 @@ function main() {
   app.renderer.backgroundColor = 0xfff1f1f1;
 
   let game = new Game(app, {
-    numCols: 3,
-    numRows: 3,
-    maxSum: 6,
+    numCols: 4,
+    numRows: 4,
+    maxSum: 7,
     players: [{ kind: PlayerKind.AI }, { kind: PlayerKind.Human }],
   });
 
