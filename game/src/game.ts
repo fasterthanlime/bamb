@@ -7,6 +7,7 @@ import {
   BoardPlacement,
   Move,
   SumsGraphics,
+  DecksGraphics,
 } from "./types";
 import { emptyBoard } from "./transforms";
 import { propagate } from "./propagate";
@@ -32,6 +33,7 @@ export enum PlayerKind {
 }
 
 export interface Player {
+  name: string;
   kind: PlayerKind;
 }
 
@@ -45,7 +47,7 @@ export class Game {
   container: PIXI.Container;
   displayObjects: {
     board: PIXI.Container;
-    decks: PIXI.Container[];
+    decks: DecksGraphics;
     cards: PIXI.Container;
     trash: PIXI.Container;
     sums: SumsGraphics;
@@ -62,6 +64,7 @@ export class Game {
   };
   dragTarget: Card;
   players: Player[];
+  humanWinChance = 100;
 
   constructor(app: PIXI.Application, settings: GameSettings) {
     this.app = app;
@@ -212,10 +215,16 @@ export class Game {
     let prevState = this.state;
     let cons = new RecordingConsequences();
     let nextState = play(this, prevState, move, cons);
-    if (nextState !== prevState) {
-      nextState = this.stateAdvanceTurn(nextState);
+    if (nextState === prevState) {
+      return;
     }
 
+    console.log(`Advancing turn, got ${cons.snaps.length} snapshots: `);
+    for (const s of cons.snaps) {
+      console.log(`+${s.millis}ms: ${s.text}`);
+    }
+
+    this.state = this.stateAdvanceTurn(nextState);
     propagate(this);
     layout(this);
   }
@@ -245,5 +254,13 @@ export class Game {
 
     // draw
     return 0.5;
+  }
+
+  playerName(player: number): string {
+    return this.players[player].name;
+  }
+
+  describeCard(card: Card): string {
+    return `${this.playerName(card.player)} ${card.value}`;
   }
 }

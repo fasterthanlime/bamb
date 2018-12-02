@@ -17,7 +17,7 @@ function main() {
     numCols: 4,
     numRows: 4,
     maxSum: 7,
-    players: [{ kind: PlayerKind.AI }, { kind: PlayerKind.Human }],
+    players: [{ name: "red", kind: PlayerKind.AI }, { name: "blue", kind: PlayerKind.Human }],
   });
 
   app.stage.addChild(game.container);

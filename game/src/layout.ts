@@ -6,9 +6,12 @@ export function layout(game: Game, immediate = false) {
 
   {
     let [p1Deck, p2Deck] = game.displayObjects.decks;
-    p1Deck.position.set(width / 2 - D.deckWidth / 2, D.deckVertPadding);
+    p1Deck.container.position.set(
+      width / 2 - D.deckWidth / 2,
+      D.deckVertPadding,
+    );
 
-    p2Deck.position.set(
+    p2Deck.container.position.set(
       width / 2 - D.deckWidth / 2,
       height - D.deckHeight - D.deckVertPadding,
     );
@@ -36,8 +39,8 @@ export function layout(game: Game, immediate = false) {
       const place = card.placement.deckPlacement;
       const deck = game.displayObjects.decks[place.player];
 
-      let y = deck.position.y + D.cardPadding + D.cardSide / 2;
-      let x = deck.position.x + D.cardPadding + D.cardSide / 2;
+      let y = deck.container.position.y + D.cardPadding + D.cardSide / 2;
+      let x = deck.container.position.x + D.cardPadding + D.cardSide / 2;
       x += place.slot * (D.cardSide + D.cardPadding);
       card.targetPos.set(x, y);
     } else if (card.placement.boardPlacement) {

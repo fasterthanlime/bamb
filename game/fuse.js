@@ -35,7 +35,7 @@ context(
         ],
       });
     }
-  }
+  },
 );
 task("default", async context => {
   const fuse = context.getConfig();
@@ -43,7 +43,6 @@ task("default", async context => {
   fuse
     .bundle("app")
     .instructions(" > index.ts")
-    .hmr({ reload: true })
     .watch();
   await fuse.run();
 });

@@ -48,9 +48,16 @@ export function placeCard(
       let state = prevState;
 
       // remove card from deck & place it on board
+      let onWhat = "empty space";
+      if (underCard) {
+        onWhat = game.describeCard(underCard);
+      }
+
       cons.snapshot({
         millis: 500,
-        text: `${game.playerName(move.player)} plays a ${card.value}`,
+        text: `${game.playerName(move.player)} plays a ${
+          card.value
+        } on ${onWhat}`,
         state,
       });
 
@@ -64,7 +71,9 @@ export function placeCard(
       if (underCard) {
         cons.snapshot({
           millis: 500,
-          text: `Card ${card.value} is discarded`,
+          text: `${card.value} returns to ${game.playerName(
+            move.player,
+          )}'s deck`,
           state,
         });
 
@@ -102,6 +111,8 @@ export function placeCard(
     }
 
     {
+      let state = prevState;
+
       // remove card from deck & place it into trash
       state = game.stateTransformDeck(state, move.player, deck =>
         game.deckRemoveCard(deck, move.cardId),

@@ -14,11 +14,11 @@ export function processRowClears(
   let colsToClear = [];
   for (const row of newZones.hotRows) {
     rowsToClear.push(row);
-    cons.rowsCleared.push(row);
+    cons.clearedRow(row);
   }
   for (const col of newZones.hotCols) {
     colsToClear.push(col);
-    cons.rowsCleared.push(col);
+    cons.clearedCol(col);
   }
 
   let state = newState;
@@ -30,10 +30,16 @@ export function processRowClears(
           state = game.stateTransformBoard(state, board =>
             game.boardTrashCard(board, card.id),
           );
+          state = game.stateTransformBoard(state, board =>
+            game.boardSetCard(board, { col, row }, undefined),
+          );
+          cons.lostCard(card.player);
+          cons.snapshot({
+            state,
+            text: `${game.playerName(card.player)} loses ${card.value}`,
+            millis: 500,
+          });
         }
-        state = game.stateTransformBoard(state, board =>
-          game.boardSetCard(board, { col, row }, undefined),
-        );
       }
     }
     for (const row of rowsToClear) {
@@ -43,10 +49,16 @@ export function processRowClears(
           state = game.stateTransformBoard(state, board =>
             game.boardTrashCard(board, card.id),
           );
+          state = game.stateTransformBoard(state, board =>
+            game.boardSetCard(board, { col, row }, undefined),
+          );
+          cons.lostCard(card.player);
+          cons.snapshot({
+            state,
+            text: `${game.playerName(card.player)} loses ${card.value}`,
+            millis: 500,
+          });
         }
-        state = game.stateTransformBoard(state, board =>
-          game.boardSetCard(board, { col, row }, undefined),
-        );
       }
     }
   }

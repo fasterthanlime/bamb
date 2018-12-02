@@ -73,3 +73,10 @@ export interface SumsGraphics {
   cols: PIXI.Text[];
   rows: PIXI.Text[];
 }
+
+export type DecksGraphics = DeckGraphics[];
+
+export interface DeckGraphics {
+  container: PIXI.Container;
+  text: PIXI.Text;
+}

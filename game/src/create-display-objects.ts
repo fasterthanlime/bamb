@@ -1,5 +1,12 @@
 import { Game } from "./game";
-import { CellContainer, CardContainer, Card, SumsGraphics } from "./types";
+import {
+  CellContainer,
+  CardContainer,
+  Card,
+  SumsGraphics,
+  DeckGraphics,
+  DecksGraphics,
+} from "./types";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import * as uuidv4 from "uuid/v4";
 
@@ -17,8 +24,8 @@ export function createDisplayObjects(game: Game) {
   const borderRadius = 16;
   const cardSide = 74;
   const cardPadding = 10;
-  const cardsInDeck = 11;
-  const deckWidth = (cardSide + cardPadding) * 11 + cardPadding;
+  const cardsInDeck = 7;
+  const deckWidth = (cardSide + cardPadding) * cardsInDeck + cardPadding;
   const deckHeight = cardSide + 2 * cardPadding;
   const deckVertPadding = 8;
   const boardWidth = game.numCols * (cardSide + cardPadding);
@@ -45,22 +52,30 @@ export function createDisplayObjects(game: Game) {
   }
 }
 
-function createDecks(game: Game): PIXI.Container[] {
+function createDecks(game: Game): DecksGraphics {
   const D = game.dimensions;
 
-  const decks = [];
+  const decks: DecksGraphics = [];
   for (const player of [0, 1]) {
     let deck = new PIXI.Container();
-    {
-      let rect = new PIXI.Graphics();
+    let rect = new PIXI.Graphics();
+    rect.beginFill(0x999999);
+    rect.drawRoundedRect(0, 0, D.deckWidth, D.deckHeight, D.borderRadius);
+    deck.addChild(rect);
 
-      rect.beginFill(0x999999);
+    let text = new PIXI.Text(`${game.playerName(player)}`, {
+      fontSize: 16,
+      fontFamily,
+    });
+    text.anchor.set(0.5, 0.5);
+    text.position.set(-40, D.deckHeight / 2);
+    deck.addChild(text);
 
-      rect.drawRoundedRect(0, 0, D.deckWidth, D.deckHeight, D.borderRadius);
-      deck.addChild(rect);
-    }
+    decks.push({
+      container: deck,
+      text,
+    });
     game.container.addChild(deck);
-    decks.push(deck);
   }
   return decks;
 }
