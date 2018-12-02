@@ -13,6 +13,7 @@ import { propagate } from "./propagate";
 import { layout } from "./layout";
 import { createDisplayObjects } from "./create-display-objects";
 import { play } from "./rules/play";
+import { RecordingConsequences } from "./rules/consequences";
 
 interface GameCards {
   [cardId: string]: Card;
@@ -208,7 +209,13 @@ export class Game {
   }
 
   applyMove(move: Move) {
-    this.state = play(this, this.state, move);
+    let prevState = this.state;
+    let cons = new RecordingConsequences();
+    let nextState = play(this, prevState, move, cons);
+    if (nextState !== prevState) {
+      nextState = this.stateAdvanceTurn(nextState);
+    }
+
     propagate(this);
     layout(this);
   }

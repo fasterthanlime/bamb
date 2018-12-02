@@ -2,6 +2,7 @@ import { Move, GameState } from "../types";
 import { Game } from "../game";
 import { computeScore } from "./compute-score";
 import { play } from "../rules/play";
+import { Consequences, nullConsequences } from "../rules/consequences";
 
 export interface ScoredMove {
   move: Move;
@@ -33,7 +34,7 @@ export function listMoves(
         };
 
         // simulate playing this card
-        let newState = play(game, state, move);
+        let newState = play(game, state, move, nullConsequences);
         if (newState == state) {
           // not a legal move, keep searching
           continue;

@@ -1,10 +1,12 @@
 import { GameState, Move } from "../types";
 import { Game } from "../game";
+import { Consequences } from "./consequences";
 
 export function placeCard(
   game: Game,
   prevState: GameState,
   move: Move,
+  cons: Consequences,
 ): GameState {
   // first, check that we're playing from the current player's hand
   let hasCard = false;
@@ -43,24 +45,35 @@ export function placeCard(
 
     // cool, let's try to place it!
     {
-      let state = game.stateAdvanceTurn(prevState);
-      if (underCard) {
-        // place under card back into deck
-        state = game.stateTransformBoard(state, board =>
-          game.boardSetCard(board, move.placement, undefined),
-        );
-        state = game.stateTransformDeck(state, move.player, deck =>
-          game.deckAddCard(deck, underCard.id),
-        );
-      }
+      let state = prevState;
 
       // remove card from deck & place it on board
+      cons.snapshot({
+        millis: 500,
+        text: `${game.playerName(move.player)} plays a ${card.value}`,
+        state,
+      });
+
       state = game.stateTransformDeck(state, move.player, deck =>
         game.deckRemoveCard(deck, move.cardId),
       );
       state = game.stateTransformBoard(state, board =>
         game.boardSetCard(board, move.placement, move.cardId),
       );
+
+      if (underCard) {
+        cons.snapshot({
+          millis: 500,
+          text: `Card ${card.value} is discarded`,
+          state,
+        });
+
+        // place under card back into deck
+        state = game.stateTransformDeck(state, move.player, deck =>
+          game.deckAddCard(deck, underCard.id),
+        );
+      }
+
       return state;
     }
   } else if (typeof card.value === "string") {
@@ -89,8 +102,6 @@ export function placeCard(
     }
 
     {
-      let state = game.stateAdvanceTurn(prevState);
-
       // remove card from deck & place it into trash
       state = game.stateTransformDeck(state, move.player, deck =>
         game.deckRemoveCard(deck, move.cardId),

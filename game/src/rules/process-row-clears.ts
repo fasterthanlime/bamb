@@ -1,10 +1,12 @@
 import { GameState } from "../types";
 import { Game } from "../game";
+import { Consequences } from "./consequences";
 
 export function processRowClears(
   game: Game,
   oldState: GameState,
   newState: GameState,
+  cons: Consequences,
 ): GameState {
   const newZones = computeHotZones(game, newState);
 
@@ -12,9 +14,11 @@ export function processRowClears(
   let colsToClear = [];
   for (const row of newZones.hotRows) {
     rowsToClear.push(row);
+    cons.rowsCleared.push(row);
   }
   for (const col of newZones.hotCols) {
     colsToClear.push(col);
+    cons.rowsCleared.push(col);
   }
 
   let state = newState;

@@ -4,6 +4,7 @@ import { Game } from "../game";
 import { GameState, Move } from "../types";
 import { Node } from "./mcts";
 import { play } from "../rules/play";
+import { nullConsequences } from "../rules/consequences";
 
 function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
   let rootNode = new Node(game, null, null, rootState);
@@ -19,7 +20,7 @@ function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
     while (_.isEmpty(node.untriedMoves) && !_.isEmpty(node.childNodes)) {
       // node is fully expanded and non-terminal
       node = node.select();
-      state = play(game, state, node.move.move);
+      state = play(game, state, node.move.move, nullConsequences);
     }
 
     //===========================
@@ -28,7 +29,7 @@ function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
     if (!_.isEmpty(node.untriedMoves)) {
       // if we can expand (state/node is non-terminal)
       let m = _.sample<ScoredMove>(node.untriedMoves);
-      state = play(game, state, m.move);
+      state = play(game, state, m.move, nullConsequences);
       node = node.addChild(game, m, state);
     }
 
@@ -40,7 +41,12 @@ function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
       let moves = listMoves(game, state, state.currentPlayer);
       // while state is non-terminal
       while (!_.isEmpty(moves)) {
-        state = play(game, state, _.sample<ScoredMove>(moves).move);
+        state = play(
+          game,
+          state,
+          _.sample<ScoredMove>(moves).move,
+          nullConsequences,
+        );
         moves = listMoves(game, state, state.currentPlayer);
       }
     }

@@ -3,12 +3,18 @@ import { Game } from "../game";
 import { GameState, Move } from "../types";
 import { placeCard } from "./place-card";
 import { processRowClears } from "./process-row-clears";
+import { Consequences } from "./consequences";
 
-export function play(game: Game, prevState: GameState, move: Move): GameState {
-  let nextState = placeCard(game, prevState, move);
+export function play(
+  game: Game,
+  prevState: GameState,
+  move: Move,
+  cons: Consequences,
+): GameState {
+  let nextState = placeCard(game, prevState, move, cons);
   if (nextState === prevState) {
     return prevState;
   }
 
-  return processRowClears(game, prevState, nextState);
+  return processRowClears(game, prevState, nextState, cons);
 }
