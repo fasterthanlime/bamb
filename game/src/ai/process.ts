@@ -9,7 +9,7 @@ import { nullConsequences } from "../rules/consequences";
 function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
   let rootNode = new Node(game, null, null, rootState);
   console.log(`AI is thinking...`);
-  let itermax = 1000;
+  let itermax = 1500;
   for (let i = 0; i < itermax; i++) {
     let node = rootNode;
     let state = rootState;
@@ -60,13 +60,15 @@ function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
     }
   }
 
-  // rootNode.print();
-  console.log(
-    `Human has ${(
-      (100 * rootNode.wins) /
-      rootNode.visits
-    ).toFixed()}% chance of winning`,
-  );
+  let humanChance = (100 * rootNode.wins) / rootNode.visits;
+  console.log(`Human has ${humanChance.toFixed()}% chance of winning`);
+
+  {
+    let huDeck = game.displayObjects.decks[1 - game.state.currentPlayer];
+    huDeck.text.text = `your turn!`;
+    let aiDeck = game.displayObjects.decks[game.state.currentPlayer];
+    aiDeck.text.text = `~${(100 - humanChance).toFixed()}% win`;
+  }
 
   // return most visited node
   let sortedMoves = _.sortBy(rootNode.childNodes, c => c.visits);
