@@ -77,12 +77,12 @@ export function computeHotZones(game: GameBase, state: GameState): HotZones {
     hotCols: [],
   };
   for (let row = 0; row < game.numRows; row++) {
-    if (game.boardSumRow(state.board, row) > game.maxSum) {
+    if (game.boardSumRow(state.board, row) == game.maxSum) {
       zones.hotRows.push(row);
     }
   }
   for (let col = 0; col < game.numCols; col++) {
-    if (game.boardSumCol(state.board, col) > game.maxSum) {
+    if (game.boardSumCol(state.board, col) == game.maxSum) {
       zones.hotCols.push(col);
     }
   }

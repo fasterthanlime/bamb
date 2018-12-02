@@ -6,7 +6,7 @@ export function computeScore(
   state: GameState,
   player: number,
 ): number {
-  let tilesOwned = 0;
+  // let tilesOwned = 0;
   let valueOwned = 0;
 
   for (const cell of state.board.cells) {
@@ -16,10 +16,11 @@ export function computeScore(
 
     let card = game.cardSpecs[cell.cardId];
     if (card.player == player) {
-      tilesOwned++;
+      // tilesOwned++;
       valueOwned += card.value;
     }
   }
 
-  return tilesOwned + valueOwned / 100;
+  // return tilesOwned + valueOwned / 100;
+  return valueOwned;
 }

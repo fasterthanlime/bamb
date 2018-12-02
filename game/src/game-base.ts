@@ -74,8 +74,10 @@ export class GameBase implements GameBaseMessage {
     const deckContents = [
       // [1, 2, 3, 4, 5, 6, "L", "U"],
       // [1, 2, 3, 4, 5, 6, "L", "U"],
-      [1, 2, 3, 4, 5, 6, 7],
-      [1, 2, 3, 4, 5, 6, 7],
+      // [1, 2, 3, 4, 5, 6, 7],
+      // [1, 2, 3, 4, 5, 6, 7],
+      [2, 3, 4, 5, 6, 7, "L", "U"],
+      [2, 3, 4, 5, 6, 7, "L", "U"],
     ];
     for (const player of [0, 1]) {
       const deckContent = deckContents[player];

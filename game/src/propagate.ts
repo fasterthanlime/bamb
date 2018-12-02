@@ -1,4 +1,5 @@
 import { Game, PlayerKind } from "./game";
+import { computeScore } from "./ai/compute-score";
 
 // Translates `game.state` into `game.cards`,
 // usually running after playing a move.
@@ -66,11 +67,6 @@ export function propagate(game: Game) {
   let setSum = (textObj: PIXI.Text, sum: number) => {
     textObj.text = `${sum}`;
     textObj.style.fontSize = 28;
-    if (sum > game.maxSum) {
-      textObj.style.fill = "red";
-    } else {
-      textObj.style.fill = "green";
-    }
   };
 
   for (let col = 0; col < game.numCols; col++) {
@@ -85,11 +81,17 @@ export function propagate(game: Game) {
     setSum(textObj, sum);
   }
 
+  let dex = game.displayObjects.decks;
+  for (const player of [0, 1]) {
+    let score = computeScore(game, game.state, player);
+    dex[player].text.text = `${score} pts`;
+  }
+
   if (game.phase.movePhase) {
     if (currentPlayer.kind == PlayerKind.AI) {
-      let cp = game.state.currentPlayer;
-      let dex = game.displayObjects.decks;
-      dex[1 - cp].text.text = "AI's thinking...";
+      // let cp = game.state.currentPlayer;
+      // let dex = game.displayObjects.decks;
+      // dex[1 - cp].text.text = "AI's thinking...";
       console.warn(`Sending processAI request...`);
       game.sendWorkerMessage({
         task: "processAI",

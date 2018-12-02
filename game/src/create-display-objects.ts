@@ -25,7 +25,7 @@ export function createDisplayObjects(game: Game) {
   game.container = new PIXI.Container();
 
   const borderRadius = 16;
-  const cardSide = 60;
+  const cardSide = 80;
   const cardPadding = 4;
   const cardsInDeck = 8;
   const deckWidth = (cardSide + cardPadding) * cardsInDeck + cardPadding;
@@ -80,11 +80,12 @@ function createDecks(game: Game): DecksGraphics {
     deck.addChild(rect);
 
     let text = new PIXI.Text(`${game.playerName(player)}`, {
-      fontSize: 16,
+      fontSize: 42,
       fontFamily,
     });
     text.anchor.set(0.5, 0.5);
     text.position.set(-60, D.deckHeight / 2);
+    // text.position.y += (D.deckHeight / 2) * (player === 0 ? 1 : -1);
     deck.addChild(text);
 
     decks.push({
@@ -172,6 +173,23 @@ function createCards(game: Game): PIXI.Container {
         fill: "white",
         align: "center",
       });
+      if (typeof card.spec.value === "string") {
+        text.style.fontFamily = "FontAwesome";
+        switch (card.spec.value) {
+          case "L":
+            text.text = Icon.ArrowLeft;
+            break;
+          case "R":
+            text.text = Icon.ArrowRight;
+            break;
+          case "U":
+            text.text = Icon.ArrowUp;
+            break;
+          case "D":
+            text.text = Icon.ArrowDown;
+            break;
+        }
+      }
       text.anchor.set(0.5, 0.5);
       cardContainer.addChild(text);
 
@@ -324,6 +342,10 @@ function createGameUI(game: Game): UIContainer {
 
 enum Icon {
   Refresh = "",
+  ArrowLeft = "\uf060",
+  ArrowRight = "\uf061",
+  ArrowUp = "\uf062",
+  ArrowDown = "\uf063",
 }
 
 function createIcon(
