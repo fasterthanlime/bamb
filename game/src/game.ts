@@ -8,6 +8,7 @@ import {
   Move,
   SumsGraphics,
   DecksGraphics,
+  UIContainer,
 } from "./types";
 import { emptyBoard } from "./transforms";
 import { propagate } from "./propagate";
@@ -64,7 +65,7 @@ export class Game extends GameBase {
     cards: PIXI.Container;
     trash: PIXI.Container;
     sums: SumsGraphics;
-    ui: PIXI.Container[];
+    gameUI: UIContainer;
   };
   dimensions: {
     borderRadius: number;

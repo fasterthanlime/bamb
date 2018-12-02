@@ -63,7 +63,7 @@ export function createDisplayObjects(game: Game) {
       trash,
       board,
       sums,
-      ui: [gameUI],
+      gameUI,
     };
   }
 }
@@ -310,9 +310,7 @@ function createGameUI(game: Game): UIContainer {
     restartButton.drawRoundedRect(1250, 700, 50, 50, 10);
     restartButton.filters = [shadowFilter];
 
-    restartButton.addChild(
-      createIcon(1250, 700, 100, 100, Icon.Refresh, 25, [1]),
-    );
+    restartButton.addChild(createIcon(0, 0, 100, 100, Icon.Refresh, 25, [1]));
 
     uiContainer.addChild(restartButton);
 

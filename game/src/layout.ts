@@ -28,6 +28,11 @@ export function layout(game: Game, immediate = false) {
     board.position.y,
   );
 
+  game.displayObjects.gameUI.position.set(
+    width / 2 + D.boardWidth + D.cardPadding * 2,
+    height / 2,
+  );
+
   {
     const trash = game.displayObjects.trash;
     trash.position.set(D.cardPadding + D.cardSide / 2, height / 2);
