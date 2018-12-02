@@ -1,5 +1,4 @@
 import { Game, PlayerKind } from "./game";
-import { processAI } from "./ai/process";
 
 // Translates `game.state` into `game.cards`,
 // usually running after playing a move.
@@ -86,15 +85,17 @@ export function propagate(game: Game) {
     setSum(textObj, sum);
   }
 
-  if (currentPlayer.kind == PlayerKind.AI) {
-    let cp = game.state.currentPlayer;
-    let dex = game.displayObjects.decks;
-    dex[1 - cp].text.text = "please wait...";
-    dex[cp].text.text = "thinking...";
-    console.warn(`Sending processAI request...`);
-    game.sendWorkerMessage({
-      task: "processAI",
-      gameMessage: game.toMessage(),
-    });
+  if (game.phase.movePhase) {
+    if (currentPlayer.kind == PlayerKind.AI) {
+      let cp = game.state.currentPlayer;
+      let dex = game.displayObjects.decks;
+      dex[1 - cp].text.text = "please wait...";
+      dex[cp].text.text = "thinking...";
+      console.warn(`Sending processAI request...`);
+      game.sendWorkerMessage({
+        task: "processAI",
+        gameMessage: game.toMessage(),
+      });
+    }
   }
 }

@@ -38,7 +38,7 @@ export function processRowClears(
           cons.snapshot({
             state,
             text: `${game.playerName(card.player)} loses ${card.value}`,
-            millis: 500,
+            millis: 200,
           });
         }
       }
@@ -57,7 +57,7 @@ export function processRowClears(
           cons.snapshot({
             state,
             text: `${game.playerName(card.player)} loses ${card.value}`,
-            millis: 500,
+            millis: 200,
           });
         }
       }

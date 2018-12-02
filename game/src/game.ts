@@ -14,7 +14,7 @@ import { propagate } from "./propagate";
 import { layout } from "./layout";
 import { createDisplayObjects } from "./create-display-objects";
 import { play } from "./rules/play";
-import { RecordingConsequences } from "./rules/consequences";
+import { RecordingConsequences, GameSnapshot } from "./rules/consequences";
 import { GameBase } from "./game-base";
 import { WorkerIncomingMessage } from "./types-worker";
 
@@ -48,7 +48,7 @@ export interface GamePhase {
 export interface MovePhase {}
 export interface TransitionPhase {
   cons: RecordingConsequences;
-  newState: GameState;
+  nextState: GameState;
 }
 export interface GameOverPhase {
   scores: number[];
@@ -79,6 +79,7 @@ export class Game extends GameBase {
   dragTarget: Card;
   humanWinChance = 100;
   phase: GamePhase;
+  currentSnapshot: GameSnapshot;
 
   constructor(app: PIXI.Application, worker: Worker, settings: GameSettings) {
     super();
@@ -107,10 +108,13 @@ export class Game extends GameBase {
       console.log(`+${s.millis}ms: ${s.text}`);
     }
 
-    this.phase = {};
+    this.phase = {
+      transitionPhase: {
+        cons,
+        nextState,
+      },
+    };
     this.state = nextState;
-    propagate(this);
-    layout(this);
   }
 
   pass() {

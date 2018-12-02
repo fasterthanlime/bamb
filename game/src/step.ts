@@ -1,9 +1,43 @@
 import { Game } from "./game";
+import { GameSnapshot } from "./rules/consequences";
+import { layout } from "./layout";
+import { propagate } from "./propagate";
 
 const alpha = 0.05;
 
 // Step is called every tick
 export function step(game: Game, delta: number) {
+  if (game.phase.transitionPhase) {
+    const tp = game.phase.transitionPhase;
+    const { cons, nextState } = tp;
+    let firstNonZeroSnap: GameSnapshot;
+    for (const snap of cons.snaps) {
+      if (snap.millis > 0) {
+        firstNonZeroSnap = snap;
+        break;
+      }
+    }
+
+    if (firstNonZeroSnap) {
+      if (game.currentSnapshot != firstNonZeroSnap) {
+        game.currentSnapshot = firstNonZeroSnap;
+        game.state = firstNonZeroSnap.state;
+        propagate(game);
+        layout(game);
+      }
+
+      let msElapsed = (delta * 1000) / 60;
+      firstNonZeroSnap.millis -= msElapsed;
+    } else {
+      game.state = nextState;
+      game.phase = {
+        movePhase: {},
+      };
+      propagate(game);
+      layout(game);
+    }
+  }
+
   for (const player of [0, 1]) {
     const deck = game.displayObjects.decks[player];
     if (player == game.state.currentPlayer) {

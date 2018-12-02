@@ -54,14 +54,6 @@ export function placeCard(
         onWhat = game.describeCard(underCard);
       }
 
-      cons.snapshot({
-        millis: 500,
-        text: `${game.playerName(move.player)} plays a ${
-          card.value
-        } on ${onWhat}`,
-        state,
-      });
-
       state = game.stateTransformDeck(state, move.player, deck =>
         game.deckRemoveCard(deck, move.cardId),
       );
@@ -69,7 +61,20 @@ export function placeCard(
         game.boardSetCard(board, move.placement, move.cardId),
       );
 
+      cons.snapshot({
+        millis: underCard ? 500 : 1000,
+        text: `${game.playerName(move.player)} plays a ${
+          card.value
+        } on ${onWhat}`,
+        state,
+      });
+
       if (underCard) {
+        // place under card back into deck
+        state = game.stateTransformDeck(state, move.player, deck =>
+          game.deckAddCard(deck, underCard.id),
+        );
+
         cons.snapshot({
           millis: 500,
           text: `${card.value} returns to ${game.playerName(
@@ -77,11 +82,6 @@ export function placeCard(
           )}'s deck`,
           state,
         });
-
-        // place under card back into deck
-        state = game.stateTransformDeck(state, move.player, deck =>
-          game.deckAddCard(deck, underCard.id),
-        );
       }
 
       return state;
