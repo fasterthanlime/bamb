@@ -38,5 +38,6 @@ function main() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   await new FontFaceObserver("Roboto").load();
+  await new FontFaceObserver("FontAwesome").load();
   main();
 });

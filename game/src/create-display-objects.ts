@@ -1,10 +1,19 @@
 import { Game } from "./game";
-import { CellContainer, CardContainer, Card, SumsGraphics } from "./types";
+import {
+  CellContainer,
+  CardContainer,
+  Card,
+  SumsGraphics,
+  UIContainer,
+} from "./types";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import * as uuidv4 from "uuid/v4";
 
 const playerColors = [0xec7d75, 0x75c3ec];
+
 export const fontFamily = "Roboto";
+export const iconFontFamily = "FontAwesome";
+
 const shadowFilter = new DropShadowFilter();
 shadowFilter.alpha = 0.16;
 shadowFilter.distance = 1;
@@ -41,7 +50,20 @@ export function createDisplayObjects(game: Game) {
     const trash = createTrash(game);
     const board = createBoard(game);
     const sums = createSums(game);
-    game.displayObjects = { decks, cards, trash, board, sums };
+
+    // UI modules
+    const gameUI = createGameUI(game);
+    // TODO: main menu
+    //    const menuUI = createMenuUI(game);
+
+    game.displayObjects = {
+      decks,
+      cards,
+      trash,
+      board,
+      sums,
+      ui: [gameUI],
+    };
   }
 }
 
@@ -275,4 +297,27 @@ function createSums(game: Game): SumsGraphics {
   }
   game.container.addChild(container);
   return sums;
+}
+
+function createGameUI(game: Game): UIContainer {
+  const D = game.dimensions;
+
+  const board = new PIXI.Container();
+  {
+    let restartButton = new PIXI.Graphics();
+    restartButton.beginFill(0xffffff);
+    restartButton.drawRoundedRect(1250, 700, 50, 50, 10);
+    restartButton.filters = [shadowFilter];
+    restartButton.endFill();
+
+    let rBtnText = new PIXI.Text("\uf003", {
+      fontFamily: iconFontFamily,
+      fill: "black",
+    });
+    restartButton.addChild(rBtnText);
+    board.addChild(restartButton);
+  }
+
+  game.container.addChild(board);
+  return board;
 }

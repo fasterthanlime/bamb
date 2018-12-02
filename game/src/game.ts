@@ -48,6 +48,7 @@ export class Game {
     cards: PIXI.Container;
     trash: PIXI.Container;
     sums: SumsGraphics;
+    ui: PIXI.Container[];
   };
   dimensions: {
     borderRadius: number;
