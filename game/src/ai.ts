@@ -14,7 +14,7 @@ function calculateBestMove(
     cardId: null,
     placement: { row: 0, col: 0 },
   };
-  let bestScore = -99;
+  let bestScore = Number.MIN_SAFE_INTEGER;
 
   if (baseMove) {
     bestMove = baseMove;
