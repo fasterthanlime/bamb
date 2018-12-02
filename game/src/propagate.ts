@@ -1,4 +1,5 @@
-import { Game } from "./game";
+import { Game, PlayerKind } from "./game";
+import { processAI } from "./ai/process";
 
 // Translates `game.state` into `game.cards`,
 // usually running after playing a move.
@@ -48,10 +49,13 @@ export function propagate(game: Game) {
   }
 
   let draggableCardIds = {};
-  const currentDeck = game.state.decks[game.state.currentPlayer].cells;
-  for (const c of currentDeck) {
-    if (c.cardId) {
-      draggableCardIds[c.cardId] = true;
+  let currentPlayer = game.players[game.state.currentPlayer];
+  if (currentPlayer.kind == PlayerKind.Human) {
+    const currentDeck = game.state.decks[game.state.currentPlayer].cells;
+    for (const c of currentDeck) {
+      if (c.cardId) {
+        draggableCardIds[c.cardId] = true;
+      }
     }
   }
 
@@ -62,15 +66,11 @@ export function propagate(game: Game) {
 
   let setSum = (textObj: PIXI.Text, sum: number) => {
     textObj.text = `${sum}`;
+    textObj.style.fontSize = 28;
     if (sum > game.maxSum) {
       textObj.style.fill = "red";
-      textObj.style.fontSize = 28;
-    } else if (sum + 3 > game.maxSum) {
-      textObj.style.fill = "orange";
-      textObj.style.fontSize = 24;
     } else {
       textObj.style.fill = "green";
-      textObj.style.fontSize = 20;
     }
   };
 
@@ -84,5 +84,11 @@ export function propagate(game: Game) {
     const sum = game.boardSumRow(game.state.board, row);
     let textObj = game.displayObjects.sums.rows[row];
     setSum(textObj, sum);
+  }
+
+  if (currentPlayer.kind == PlayerKind.AI) {
+    setTimeout(() => {
+      processAI(game);
+    }, 1000);
   }
 }

@@ -17,7 +17,8 @@ export function createDisplayObjects(game: Game) {
   const borderRadius = 16;
   const cardSide = 74;
   const cardPadding = 10;
-  const deckWidth = (cardSide + cardPadding) * 7 + cardPadding;
+  const cardsInDeck = 11;
+  const deckWidth = (cardSide + cardPadding) * 11 + cardPadding;
   const deckHeight = cardSide + 2 * cardPadding;
   const deckVertPadding = 8;
   const boardWidth = game.numCols * (cardSide + cardPadding);
@@ -109,10 +110,15 @@ function createCards(game: Game): PIXI.Container {
       }
     }
 
-    const allValues = [[1, 2, 3, 4, 5, "L", "U"], [1, 2, 3, 4, 5, "R", "D"]];
+    const allValues = [
+      // [1, 2, 2, 3, 4, 4, 5, "L", "R", "U", "D"],
+      // [1, 2, 2, 3, 4, 4, 5, "L", "R", "U", "D"],
+      [1, 3, 5],
+      [1, 3, 5],
+    ];
     for (const player of [0, 1]) {
       const values = allValues[player];
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < values.length; i++) {
         let cardContainer = new PIXI.Container() as CardContainer;
         let cardId = uuidv4();
         let card: Card = {
@@ -177,10 +183,8 @@ function createBoard(game: Game): PIXI.Container {
       event: PIXI.interaction.InteractionEvent,
     ) {
       if (game.dragTarget) {
-        console.log(`has drag target, currently over `, this.cell);
         const { col, row } = this.cell;
         const cs = game.boardGetCell(game.state.board, col, row);
-        console.log(`cs = `, cs);
         game.dragTarget.dragging.over = this;
       }
     }

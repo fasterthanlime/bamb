@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { Game } from "./game";
+import { Game, PlayerKind } from "./game";
 import { layout } from "./layout";
 import "./main.css";
 import { step } from "./step";
@@ -16,7 +16,8 @@ function main() {
   let game = new Game(app, {
     numCols: 3,
     numRows: 3,
-    maxSum: 7,
+    maxSum: 6,
+    players: [{ kind: PlayerKind.AI }, { kind: PlayerKind.Human }],
   });
 
   app.stage.addChild(game.container);

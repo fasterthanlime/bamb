@@ -22,6 +22,16 @@ export interface GameSettings {
   numCols: number;
   numRows: number;
   maxSum: number;
+  players: Player[];
+}
+
+export enum PlayerKind {
+  Human = "human",
+  AI = "ai",
+}
+
+export interface Player {
+  kind: PlayerKind;
 }
 
 export class Game {
@@ -50,7 +60,7 @@ export class Game {
     boardHeight: number;
   };
   dragTarget: Card;
-  players: Array<number>;
+  players: Player[];
 
   constructor(app: PIXI.Application, settings: GameSettings) {
     this.app = app;
@@ -58,13 +68,16 @@ export class Game {
     this.numCols = numCols;
     this.numRows = numRows;
     this.maxSum = settings.maxSum;
+    if (settings.players.length !== 2) {
+      throw new Error("game only supports 2 players");
+    }
+    this.players = settings.players;
     this.state = {
       currentPlayer: 0,
       board: emptyBoard(numCols, numRows),
       decks: [{ cells: [] }, { cells: [] }],
     };
     this.cards = {};
-    this.players = [0, 1];
     createDisplayObjects(this);
     propagate(this);
     layout(this, true);

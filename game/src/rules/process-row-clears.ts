@@ -22,9 +22,6 @@ export function processRowClears(
     }
   }
 
-  console.log(
-    `${rowsToClear.length} rows to clear, ${colsToClear.length} cols to clear`,
-  );
   let state = newState;
   if (rowsToClear.length > 0 || colsToClear.length > 0) {
     for (const col of colsToClear) {

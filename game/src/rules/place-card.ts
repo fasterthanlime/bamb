@@ -31,12 +31,12 @@ export function placeCard(
   if (typeof card.value === "number") {
     if (underCard) {
       if (underCard.player != card.player) {
-        console.error(`can't play over card of other player`);
+        // can't play over card of other player
         return prevState;
       }
 
       if (underCard.value < card.value) {
-        console.error(`can only swap with lower-value card`);
+        // can only swap with lower-value card
         return prevState;
       }
     }
@@ -64,32 +64,29 @@ export function placeCard(
       return state;
     }
   } else if (typeof card.value === "string") {
-    console.log(`playing modifier card ${card.value}`);
     if (!underCard) {
-      console.error(`can't play modifier card on blank space`);
+      // can't play modifier card on blank space
       return prevState;
     }
 
     let [dcol, drow] = dirToColRow(card.value);
     let [newCol, newRow] = [col + dcol, row + drow];
     if (newCol < 0) {
-      console.error(`can't drop cards off left edge of board`);
+      // can't drop cards off left edge of board
       return prevState;
     }
     if (newCol >= game.numCols) {
-      console.error(`can't drop cards off right edge of board`);
+      // can't drop cards off right edge of board
       return prevState;
     }
     if (newRow < 0) {
-      console.error(`can't drop cards off top edge of board`);
+      // can't drop cards off top edge of board
       return prevState;
     }
     if (newRow >= game.numRows) {
-      console.error(`can't drop cards off bottom edge of board`);
+      // can't drop cards off bottom edge of board
       return prevState;
     }
-
-    console.log(`Would move from ${col},${row} to ${newCol},${newRow}`);
 
     {
       let state = game.stateAdvanceTurn(prevState);
