@@ -13,7 +13,7 @@ context(
         homeDir: "src",
         target: "browser@es6",
         output: "dist/$name.js",
-        sourceMaps: !this.isProduction,
+        // sourceMaps: !this.isProduction,
         plugins: [
           [
             CSSResourcePlugin({
@@ -43,6 +43,10 @@ task("default", async context => {
   fuse
     .bundle("app")
     .instructions(" > index.ts")
+    .watch();
+  fuse
+    .bundle("worker")
+    .instructions(" > worker.ts")
     .watch();
   await fuse.run();
 });

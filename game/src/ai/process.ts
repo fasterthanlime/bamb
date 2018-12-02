@@ -1,15 +1,19 @@
 import * as _ from "underscore";
-import { ScoredMove, listMoves } from "./list-moves";
 import { Game } from "../game";
-import { GameState, Move } from "../types";
-import { Node } from "./mcts";
-import { play } from "../rules/play";
+import { GameBase } from "../game-base";
 import { nullConsequences } from "../rules/consequences";
+import { play } from "../rules/play";
+import { GameState } from "../types";
+import { listMoves, ScoredMove } from "./list-moves";
+import { Node } from "./mcts";
 
-function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
+export function calculateBestMove(
+  game: GameBase,
+  rootState: GameState,
+): ScoredMove {
   let rootNode = new Node(game, null, null, rootState);
   console.log(`AI is thinking...`);
-  let itermax = 500;
+  let itermax = 1000;
   for (let i = 0; i < itermax; i++) {
     let node = rootNode;
     let state = rootState;
@@ -63,12 +67,13 @@ function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
   let humanChance = (100 * rootNode.wins) / rootNode.visits;
   console.log(`Human has ${humanChance.toFixed()}% chance of winning`);
 
-  {
-    let huDeck = game.displayObjects.decks[1 - game.state.currentPlayer];
-    huDeck.text.text = `your turn!`;
-    let aiDeck = game.displayObjects.decks[game.state.currentPlayer];
-    aiDeck.text.text = `~${(100 - humanChance).toFixed()}% win`;
-  }
+  // FIXME: do that again but properly
+  // {
+  //   let huDeck = game.displayObjects.decks[1 - game.state.currentPlayer];
+  //   huDeck.text.text = `your turn!`;
+  //   let aiDeck = game.displayObjects.decks[game.state.currentPlayer];
+  //   aiDeck.text.text = `~${(100 - humanChance).toFixed()}% win`;
+  // }
 
   // return most visited node
   let sortedMoves = _.sortBy(rootNode.childNodes, c => c.visits);

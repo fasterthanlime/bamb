@@ -4,9 +4,10 @@ import { GameState, Move } from "../types";
 import { placeCard } from "./place-card";
 import { processRowClears } from "./process-row-clears";
 import { Consequences } from "./consequences";
+import { GameBase } from "../game-base";
 
 export function play(
-  game: Game,
+  game: GameBase,
   prevState: GameState,
   move: Move,
   cons: Consequences,

@@ -1,3 +1,6 @@
+import { GameBaseMessage } from "./game-base";
+import { ScoredMove } from "./ai/list-moves";
+
 export interface DeckPlacement {
   player: number;
   slot: number;
@@ -18,16 +21,30 @@ export interface CardPlacement {
   trashPlacement?: TrashPlacement;
 }
 
+export interface WorkerIncomingMessage {
+  task: "processAI";
+  gameMessage: GameBaseMessage;
+}
+
+export interface WorkerOutgoingMessage {
+  task: "processAI";
+  move: ScoredMove;
+}
+
 export interface Move {
   player: number;
   cardId: string;
   placement: BoardPlacement;
 }
 
-export interface Card {
+export interface CardSpec {
   player: number;
   value: any;
   id: string;
+}
+
+export interface Card {
+  spec: CardSpec;
   container: PIXI.Container;
   placement: CardPlacement;
   targetPos: PIXI.Point;

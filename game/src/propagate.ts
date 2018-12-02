@@ -61,7 +61,7 @@ export function propagate(game: Game) {
 
   for (const cardId of Object.keys(game.cards)) {
     const card = game.cards[cardId];
-    card.container.interactive = draggableCardIds[card.id];
+    card.container.interactive = draggableCardIds[card.spec.id];
   }
 
   let setSum = (textObj: PIXI.Text, sum: number) => {
@@ -91,8 +91,10 @@ export function propagate(game: Game) {
     let dex = game.displayObjects.decks;
     dex[1 - cp].text.text = "please wait...";
     dex[cp].text.text = "thinking...";
-    setTimeout(() => {
-      processAI(game);
-    }, 500);
+    console.warn(`Sending processAI request...`);
+    game.sendWorkerMessage({
+      task: "processAI",
+      gameMessage: game.toMessage(),
+    });
   }
 }

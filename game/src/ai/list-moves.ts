@@ -3,6 +3,7 @@ import { Game } from "../game";
 import { computeScore } from "./compute-score";
 import { play } from "../rules/play";
 import { Consequences, nullConsequences } from "../rules/consequences";
+import { GameBase } from "../game-base";
 
 export interface ScoredMove {
   move: Move;
@@ -10,7 +11,7 @@ export interface ScoredMove {
 }
 
 export function listMoves(
-  game: Game,
+  game: GameBase,
   state: GameState,
   player: number,
 ): ScoredMove[] {
@@ -22,7 +23,7 @@ export function listMoves(
     if (!deckCard.cardId) {
       continue;
     }
-    let card = game.cards[deckCard.cardId];
+    let card = game.cardSpecs[deckCard.cardId];
 
     // checks the entire board to see if it can be placed
     for (let col = 0; col < game.numCols; col++) {

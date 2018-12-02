@@ -109,7 +109,7 @@ function createCards(game: Game): PIXI.Container {
         const { col, row } = over.cell;
         game.applyMove({
           player: game.state.currentPlayer,
-          cardId: card.id,
+          cardId: card.spec.id,
           placement: { col, row },
         });
       }
@@ -125,58 +125,49 @@ function createCards(game: Game): PIXI.Container {
       }
     }
 
-    const allValues = [[1, 2, 3, 4, 5, 6, 7], [1, 2, 3, 4, 5, 6, 7]];
-    for (const player of [0, 1]) {
-      const values = allValues[player];
-      for (let i = 0; i < values.length; i++) {
-        let cardContainer = new PIXI.Container() as CardContainer;
-        let cardId = uuidv4();
-        let card: Card = {
-          player,
-          value: values[i],
-          id: cardId,
-          container: cardContainer,
-          placement: {},
-          targetPos: new PIXI.Point(0, 0),
-        };
-        game.cards[cardId] = card;
-        game.state.decks[player].cells.push({
-          cardId,
-        });
-        let cardGfx = new PIXI.Graphics();
-        cardGfx.beginFill(playerColors[player]);
-        {
-          cardGfx.filters = [shadowFilter];
-        }
-        cardGfx.drawRoundedRect(
-          -D.cardSide / 2,
-          -D.cardSide / 2,
-          D.cardSide,
-          D.cardSide,
-          D.borderRadius,
-        );
-        cardContainer.addChild(cardGfx);
-
-        let text = new PIXI.Text(card.value, {
-          fontSize: 30,
-          fontFamily,
-          fill: "white",
-          align: "center",
-        });
-        text.anchor.set(0.5, 0.5);
-        cardContainer.addChild(text);
-
-        cardContainer.interactive = true;
-        cardContainer.buttonMode = true;
-        cardContainer.card = card;
-        cardContainer
-          .on("pointerdown", onDragStart)
-          .on("pointerup", onDragEnd)
-          .on("pointerupoutside", onDragEnd)
-          .on("pointermove", onDragMove);
-
-        cards.addChild(cardContainer);
+    for (const cardId of Object.keys(game.cardSpecs)) {
+      const spec = game.cardSpecs[cardId];
+      const cardContainer = new PIXI.Container() as CardContainer;
+      const card: Card = {
+        spec,
+        container: cardContainer,
+        placement: {},
+        targetPos: new PIXI.Point(0, 0),
+      };
+      game.cards[cardId] = card;
+      let cardGfx = new PIXI.Graphics();
+      cardGfx.beginFill(playerColors[spec.player]);
+      {
+        cardGfx.filters = [shadowFilter];
       }
+      cardGfx.drawRoundedRect(
+        -D.cardSide / 2,
+        -D.cardSide / 2,
+        D.cardSide,
+        D.cardSide,
+        D.borderRadius,
+      );
+      cardContainer.addChild(cardGfx);
+
+      let text = new PIXI.Text(card.spec.value, {
+        fontSize: 30,
+        fontFamily,
+        fill: "white",
+        align: "center",
+      });
+      text.anchor.set(0.5, 0.5);
+      cardContainer.addChild(text);
+
+      cardContainer.interactive = true;
+      cardContainer.buttonMode = true;
+      cardContainer.card = card;
+      cardContainer
+        .on("pointerdown", onDragStart)
+        .on("pointerup", onDragEnd)
+        .on("pointerupoutside", onDragEnd)
+        .on("pointermove", onDragMove);
+
+      cards.addChild(cardContainer);
     }
   }
   game.container.addChild(cards);

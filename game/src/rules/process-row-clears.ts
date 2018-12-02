@@ -1,9 +1,10 @@
 import { GameState } from "../types";
 import { Game } from "../game";
 import { Consequences } from "./consequences";
+import { GameBase } from "../game-base";
 
 export function processRowClears(
-  game: Game,
+  game: GameBase,
   oldState: GameState,
   newState: GameState,
   cons: Consequences,
@@ -70,7 +71,7 @@ interface HotZones {
   hotCols: number[];
 }
 
-export function computeHotZones(game: Game, state: GameState): HotZones {
+export function computeHotZones(game: GameBase, state: GameState): HotZones {
   let zones: HotZones = {
     hotRows: [],
     hotCols: [],

@@ -1,8 +1,8 @@
-import { Game } from "../game";
 import { GameState } from "../types";
+import { GameBase } from "../game-base";
 
 export function computeScore(
-  game: Game,
+  game: GameBase,
   state: GameState,
   player: number,
 ): number {
@@ -14,7 +14,7 @@ export function computeScore(
       continue;
     }
 
-    let card = game.cards[cell.cardId];
+    let card = game.cardSpecs[cell.cardId];
     if (card.player == player) {
       tilesOwned++;
       valueOwned += card.value;

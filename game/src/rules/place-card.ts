@@ -1,9 +1,10 @@
 import { GameState, Move } from "../types";
 import { Game } from "../game";
 import { Consequences } from "./consequences";
+import { GameBase } from "../game-base";
 
 export function placeCard(
-  game: Game,
+  game: GameBase,
   prevState: GameState,
   move: Move,
   cons: Consequences,
@@ -27,7 +28,7 @@ export function placeCard(
   }
 
   const { col, row } = move.placement;
-  let card = game.cards[move.cardId];
+  let card = game.cardSpecs[move.cardId];
   let underCard = game.boardGetCard(game.state.board, col, row);
 
   if (typeof card.value === "number") {
