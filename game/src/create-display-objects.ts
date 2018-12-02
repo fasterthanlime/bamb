@@ -22,9 +22,9 @@ export function createDisplayObjects(game: Game) {
   game.container = new PIXI.Container();
 
   const borderRadius = 16;
-  const cardSide = 74;
-  const cardPadding = 10;
-  const cardsInDeck = 7;
+  const cardSide = 60;
+  const cardPadding = 4;
+  const cardsInDeck = 8;
   const deckWidth = (cardSide + cardPadding) * cardsInDeck + cardPadding;
   const deckHeight = cardSide + 2 * cardPadding;
   const deckVertPadding = 8;
@@ -68,7 +68,7 @@ function createDecks(game: Game): DecksGraphics {
       fontFamily,
     });
     text.anchor.set(0.5, 0.5);
-    text.position.set(-40, D.deckHeight / 2);
+    text.position.set(-60, D.deckHeight / 2);
     deck.addChild(text);
 
     decks.push({

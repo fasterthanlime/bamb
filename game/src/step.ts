@@ -40,11 +40,16 @@ export function step(game: Game, delta: number) {
 
   for (const player of [0, 1]) {
     const deck = game.displayObjects.decks[player];
-    if (player == game.state.currentPlayer) {
-      deck.bg.alpha = deck.bg.alpha * (1 - alpha) + 1 * alpha;
-    } else {
-      deck.bg.alpha = deck.bg.alpha * (1 - alpha) + 0 * alpha;
+    let targetAlpha = 0;
+
+    if (game.phase.movePhase) {
+      if (player == game.state.currentPlayer) {
+        targetAlpha = 1;
+      } else {
+        targetAlpha = 0;
+      }
     }
+    deck.bg.alpha = deck.bg.alpha * (1 - alpha) + targetAlpha * alpha;
   }
 
   for (const cardId of Object.keys(game.cards)) {

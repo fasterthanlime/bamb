@@ -89,8 +89,7 @@ export function propagate(game: Game) {
     if (currentPlayer.kind == PlayerKind.AI) {
       let cp = game.state.currentPlayer;
       let dex = game.displayObjects.decks;
-      dex[1 - cp].text.text = "please wait...";
-      dex[cp].text.text = "thinking...";
+      dex[1 - cp].text.text = "AI's thinking...";
       console.warn(`Sending processAI request...`);
       game.sendWorkerMessage({
         task: "processAI",
