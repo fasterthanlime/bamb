@@ -1,24 +1,11 @@
 import { Game } from "./game";
 import { GameState, Move } from "./types";
 
-function calculateBestMove(
-  game: Game,
-  state: GameState,
-  depth: Number,
-  baseMove: Move,
-): Move {
-  let deck = state.decks[game.state.currentPlayer];
+function calculateBestMove(game: Game, state: GameState, depth: Number): Move {
+  let deck = state.decks[state.currentPlayer];
 
-  let bestMove = {
-    player: game.state.currentPlayer,
-    cardId: null,
-    placement: { row: 0, col: 0 },
-  };
+  let bestMove: Move = null;
   let bestScore = Number.MIN_SAFE_INTEGER;
-
-  if (baseMove) {
-    bestMove = baseMove;
-  }
 
   // goes over all the deck cards
   for (let deckCard of deck.cells) {
@@ -54,7 +41,7 @@ function calculateBestMove(
 
               let newMove = {
                 cardId: card.id,
-                player: bestMove.player,
+                player: state.currentPlayer,
                 placement: { col: y, row: x },
               };
 
@@ -88,12 +75,12 @@ export function processAI(game: Game, depth: number) {
     game,
     game.state,
     game.players[game.state.currentPlayer],
-    null,
   );
 
-  if (move.cardId) {
+  if (move) {
     game.applyMove(move);
   } else {
+    console.log("AI could not come up with a move");
     // game end
   }
 }
