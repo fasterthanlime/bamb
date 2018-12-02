@@ -64,6 +64,7 @@ export class Game extends GameBase {
     cards: PIXI.Container;
     trash: PIXI.Container;
     sums: SumsGraphics;
+    ui: PIXI.Container[];
   };
   dimensions: {
     borderRadius: number;
@@ -80,6 +81,7 @@ export class Game extends GameBase {
   humanWinChance = 100;
   phase: GamePhase;
   currentSnapshot: GameSnapshot;
+  shouldRestart: boolean;
 
   constructor(app: PIXI.Application, worker: Worker, settings: GameSettings) {
     super();

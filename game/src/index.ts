@@ -6,6 +6,16 @@ import { step } from "./step";
 import * as FontFaceObserver from "fontfaceobserver";
 import { WorkerOutgoingMessage } from "./types-worker";
 
+const gameSettings = {
+  numCols: 4,
+  numRows: 4,
+  maxSum: 7,
+  players: [
+    { name: "red", kind: PlayerKind.AI },
+    { name: "blue", kind: PlayerKind.Human },
+  ],
+};
+
 function main() {
   const app = new PIXI.Application({
     width: window.innerWidth,
@@ -15,15 +25,7 @@ function main() {
   app.renderer.backgroundColor = 0xfff1f1f1;
 
   const worker = new Worker("worker.js");
-  let game = new Game(app, worker, {
-    numCols: 4,
-    numRows: 4,
-    maxSum: 7,
-    players: [
-      { name: "red", kind: PlayerKind.AI },
-      { name: "blue", kind: PlayerKind.Human },
-    ],
-  });
+  let game = new Game(app, worker, gameSettings);
 
   app.stage.addChild(game.container);
 
@@ -34,6 +36,13 @@ function main() {
 
   PIXI.ticker.shared.autoStart = true;
   PIXI.ticker.shared.add((delta: number) => {
+    if (game.shouldRestart) {
+      console.log("restarted");
+      app.stage.removeChild(game.container);
+      game = new Game(app, worker, gameSettings);
+      app.stage.addChild(game.container);
+    }
+
     step(game, delta);
   });
 
@@ -68,5 +77,6 @@ function main() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   await new FontFaceObserver("Roboto").load();
+  await new FontFaceObserver("FontAwesome").load();
   main();
 });

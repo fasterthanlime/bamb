@@ -5,6 +5,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "FontAwesome";
+  src: url("./Font-Awesome-5-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 html,
 body {
   margin: 0;

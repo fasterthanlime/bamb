@@ -56,6 +56,10 @@ export type CellContainer = PIXI.Container & {
   };
 };
 
+export type UIContainer = PIXI.Container & {
+  visible: boolean;
+};
+
 export interface GameState {
   currentPlayer: number;
   board: BoardState;
