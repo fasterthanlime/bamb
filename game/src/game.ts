@@ -143,8 +143,8 @@ export class Game extends GameBase {
     this.dragTarget = card;
     if (this.dragTarget) {
       let c = this.dragTarget.container;
-      c.rotation = (10 / 180) * Math.PI;
-      c.scale.set(0.9, 0.9);
+      c.rotation = (8 / 180) * Math.PI;
+      c.scale.set(0.8, 0.8);
     }
     propagate(this);
   }

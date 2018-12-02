@@ -10,7 +10,8 @@ import {
 } from "./types";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 
-export const playerColors = [0x3d9970, 0x001f3f];
+// export const playerColors = [0x3d9970, 0x001f3f];
+export const playerColors = [0x7fdbff, 0xff4136];
 
 export const fontFamily = "Roboto";
 export const iconFontFamily = "FontAwesome";
@@ -26,7 +27,7 @@ export function createDisplayObjects(game: Game) {
 
   const borderRadius = 16;
   const cardSide = 80;
-  const cardPadding = 4;
+  const cardPadding = 6;
   const cardsInDeck = 8;
   const deckWidth = (cardSide + cardPadding) * cardsInDeck + cardPadding;
   const deckHeight = cardSide + 2 * cardPadding;
@@ -75,7 +76,7 @@ function createDecks(game: Game): DecksGraphics {
   for (const player of [0, 1]) {
     let deck = new PIXI.Container();
     let rect = new PIXI.Graphics();
-    rect.beginFill(0x999999);
+    rect.beginFill(playerColors[player]);
     rect.drawRoundedRect(0, 0, D.deckWidth, D.deckHeight, D.borderRadius);
     deck.addChild(rect);
 
@@ -123,6 +124,9 @@ function createCards(game: Game): PIXI.Container {
 
     function onDragEnd(this: CardContainer) {
       const { card } = this;
+      if (!card.dragging) {
+        return;
+      }
       const { over } = card.dragging;
       if (over) {
         const { col, row } = over.cell;
@@ -241,7 +245,7 @@ function createBoard(game: Game): BoardContainer {
         const cellGfx = new PIXI.Graphics();
         cellGfx.alpha = 0.5;
         cellGfx.beginFill(0xaaaaaa, 0);
-        cellGfx.lineStyle(1, 0x000000, 1);
+        cellGfx.lineStyle(1, 0xffffff, 1);
         cellGfx.drawRoundedRect(
           -cellSide / 2,
           -cellSide / 2,
@@ -370,7 +374,8 @@ function createIcon(
     fontFamily: iconFontFamily,
     fontSize: size,
     align: "center",
-    fill: "#444444",
+    // fill: "#444444",
+    fill: "white",
   });
   rBtnText.position.set(
     x + (size * (alignment[0] | 0)) / 2,

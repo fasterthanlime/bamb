@@ -85,7 +85,19 @@ export function propagate(game: Game) {
   // clear highlights by default
   for (const highlight of game.displayObjects.board.highlights) {
     highlight.alpha = 0;
-    highlight.tint = 0xffdc00; // yellow
+    // highlight.tint = 0xffdc00; // yellow
+    highlight.tint = 0xffffff;
+  }
+
+  {
+    for (let row = 0; row < game.numRows; row++) {
+      let textObj = game.displayObjects.sums.rows[row];
+      setSum(textObj, 0);
+    }
+    for (let col = 0; col < game.numCols; col++) {
+      let textObj = game.displayObjects.sums.cols[col];
+      setSum(textObj, 0);
+    }
   }
 
   if (game.dragTarget && game.dragTarget.dragging.over) {
@@ -157,17 +169,23 @@ export function propagate(game: Game) {
         }
       }
     }
-  } else {
-    for (let col = 0; col < game.numCols; col++) {
-      const sum = game.boardSumCol(game.state.board, col);
-      let textObj = game.displayObjects.sums.cols[col];
-      setSum(textObj, sum);
+  } else if (game.phase.transitionPhase) {
+    let tp = game.phase.transitionPhase;
+
+    for (const col of tp.cons.colsCleared) {
+      for (let row = 0; row < game.numRows; row++) {
+        let highlight =
+          game.displayObjects.board.highlights[game.cellIndex(col, row)];
+        highlight.alpha = 1;
+      }
     }
 
-    for (let row = 0; row < game.numRows; row++) {
-      const sum = game.boardSumRow(game.state.board, row);
-      let textObj = game.displayObjects.sums.rows[row];
-      setSum(textObj, sum);
+    for (const row of tp.cons.rowsCleared) {
+      for (let col = 0; col < game.numCols; col++) {
+        let highlight =
+          game.displayObjects.board.highlights[game.cellIndex(col, row)];
+        highlight.alpha = 1;
+      }
     }
   }
 

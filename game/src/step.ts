@@ -40,12 +40,10 @@ export function step(game: Game, delta: number) {
 
   for (const player of [0, 1]) {
     const deck = game.displayObjects.decks[player];
-    let targetAlpha = 0;
+    let targetAlpha = 1;
 
     if (game.phase.movePhase) {
       if (player == game.state.currentPlayer) {
-        targetAlpha = 1;
-      } else {
         targetAlpha = 0;
       }
     }

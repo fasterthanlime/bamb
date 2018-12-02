@@ -122,12 +122,6 @@ export function placeCard(
         game.boardSetCard(board, move.placement, move.cardId),
       );
 
-      cons.snapshot({
-        state,
-        millis: 500,
-        text: `${game.playerName(move.player)} plays an arrow card`,
-      });
-
       // perform a swaperoo!
       let neighborCard = game.boardGetCard(state.board, newCol, newRow);
       state = game.stateTransformBoard(state, board =>
@@ -147,7 +141,7 @@ export function placeCard(
       cons.snapshot({
         state,
         millis: 500,
-        text: `cards move`,
+        text: `cards get swapped`,
       });
 
       return state;

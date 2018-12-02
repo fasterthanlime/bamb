@@ -22,7 +22,8 @@ function main() {
     height: window.innerHeight,
     antialias: true,
   });
-  app.renderer.backgroundColor = 0xfff1f1f1;
+  // app.renderer.backgroundColor = 0xfff1f1f1;
+  app.renderer.backgroundColor = 0x36393f;
 
   const worker = new Worker("worker.js");
   let game = new Game(app, worker, gameSettings);

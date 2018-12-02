@@ -4,24 +4,26 @@ export function layout(game: Game, immediate = false) {
   let { width, height } = game.app.renderer;
   const D = game.dimensions;
 
-  {
-    let [p1Deck, p2Deck] = game.displayObjects.decks;
-    p1Deck.container.position.set(
-      width / 2 - D.deckWidth / 2,
-      D.deckVertPadding,
-    );
-
-    p2Deck.container.position.set(
-      width / 2 - D.deckWidth / 2,
-      height - D.deckHeight - D.deckVertPadding,
-    );
-  }
-
   const board = game.displayObjects.board;
   board.position.set(
     width / 2 - D.boardWidth / 2,
     height / 2 - D.boardHeight / 2,
   );
+
+  {
+    let [p1Deck, p2Deck] = game.displayObjects.decks;
+    p1Deck.container.position.set(
+      width / 2 - D.deckWidth / 2,
+      // D.deckVertPadding,
+      board.position.y - D.deckHeight - 80,
+    );
+
+    p2Deck.container.position.set(
+      width / 2 - D.deckWidth / 2,
+      // height - D.deckHeight - D.deckVertPadding,
+      board.position.y + D.boardHeight + 80,
+    );
+  }
 
   game.displayObjects.sums.container.position.set(
     board.position.x,
@@ -35,7 +37,10 @@ export function layout(game: Game, immediate = false) {
 
   {
     const trash = game.displayObjects.trash;
-    trash.position.set(D.cardPadding + D.cardSide / 2, height / 2);
+    trash.position.set(
+      Math.max(board.position.x - 160, D.cardPadding + D.cardSide / 2),
+      height / 2,
+    );
   }
 
   for (const cardId of Object.keys(game.cards)) {

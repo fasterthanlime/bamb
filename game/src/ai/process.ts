@@ -28,7 +28,7 @@ export function calculateBestMove(
   };
   let rootNode = new Node(game, null, null, rootState);
   console.log(`AI is thinking...`);
-  let itermax = 100;
+  let itermax = 1000;
   for (let i = 0; i < itermax; i++) {
     let node = rootNode;
     let state = rootState;
