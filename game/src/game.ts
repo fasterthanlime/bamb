@@ -219,12 +219,12 @@ export class Game {
       return;
     }
 
-    console.log(`Advancing turn, got ${cons.snaps.length} snapshots: `);
+    console.log(`For this turn, got ${cons.snaps.length} snapshots: `);
     for (const s of cons.snaps) {
       console.log(`+${s.millis}ms: ${s.text}`);
     }
 
-    this.state = this.stateAdvanceTurn(nextState);
+    this.state = nextState;
     propagate(this);
     layout(this);
   }

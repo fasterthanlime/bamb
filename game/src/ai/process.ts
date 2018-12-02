@@ -9,7 +9,7 @@ import { nullConsequences } from "../rules/consequences";
 function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
   let rootNode = new Node(game, null, null, rootState);
   console.log(`AI is thinking...`);
-  let itermax = 1500;
+  let itermax = 500;
   for (let i = 0; i < itermax; i++) {
     let node = rootNode;
     let state = rootState;
