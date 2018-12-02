@@ -6,20 +6,15 @@ export function processRowClears(
   oldState: GameState,
   newState: GameState,
 ): GameState {
-  const oldZones = computeHotZones(game, oldState);
   const newZones = computeHotZones(game, newState);
 
   let rowsToClear = [];
   let colsToClear = [];
   for (const row of newZones.hotRows) {
-    if (oldZones.hotRows.indexOf(row) !== -1) {
-      rowsToClear.push(row);
-    }
+    rowsToClear.push(row);
   }
   for (const col of newZones.hotCols) {
-    if (oldZones.hotCols.indexOf(col) !== -1) {
-      colsToClear.push(col);
-    }
+    colsToClear.push(col);
   }
 
   let state = newState;
