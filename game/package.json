@@ -22,6 +22,7 @@
   "homepage": "https://github.com/fasterthanlime/ld43#readme",
   "devDependencies": {
     "@types/pixi.js": "^4.8.4",
+    "@types/underscore": "^1.8.9",
     "fuse-box": "^3.7.0-next.9",
     "prettier": "^1.15.3",
     "terser": "^3.10.13",
@@ -32,6 +33,7 @@
     "fontfaceobserver": "^2.1.0",
     "pixi-pause": "^1.0.3",
     "pixi.js": "^4.8.2",
+    "underscore": "^1.9.1",
     "uuid": "^3.3.2"
   },
   "prettier": {
