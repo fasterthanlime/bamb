@@ -1,7 +1,7 @@
-import { GameState, Move } from "./types";
-import { Game } from "./game";
+import { GameState, Move } from "../types";
+import { Game } from "../game";
 
-export function stateApplyMove(
+export function placeCard(
   game: Game,
   prevState: GameState,
   move: Move,

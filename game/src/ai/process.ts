@@ -1,7 +1,7 @@
 import { max, size } from "underscore";
-import { listMoves, ScoredMove } from "./ai/list-moves";
-import { Game } from "./game";
-import { GameState } from "./types";
+import { listMoves, ScoredMove } from "./list-moves";
+import { Game } from "../game";
+import { GameState } from "../types";
 
 function calculateBestMove(game: Game, state: GameState): ScoredMove {
   let player = state.currentPlayer;

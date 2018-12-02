@@ -1,5 +1,5 @@
 import { Game } from "./game";
-import { processAI } from "./ai";
+import { processAI } from "./ai/process";
 
 const alpha = 0.1;
 

@@ -1,7 +1,7 @@
 import { Move, GameState } from "../types";
 import { Game } from "../game";
-import { stateApplyMove } from "../state-apply-move";
 import { computeScore } from "./compute-score";
+import { play } from "../rules/play";
 
 export interface ScoredMove {
   move: Move;
@@ -33,7 +33,7 @@ export function listMoves(
         };
 
         // simulate playing this card
-        let newState = stateApplyMove(game, state, move);
+        let newState = play(game, state, move);
         if (newState == state) {
           // not a legal move, keep searching
           continue;

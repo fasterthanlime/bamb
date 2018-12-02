@@ -12,8 +12,7 @@ import { emptyBoard } from "./transforms";
 import { propagate } from "./propagate";
 import { layout } from "./layout";
 import { createDisplayObjects } from "./create-display-objects";
-import { stateApplyMove } from "./state-apply-move";
-import { stateApplyEffects } from "./state-apply-effects";
+import { play } from "./rules/play";
 
 interface GameCards {
   [cardId: string]: Card;
@@ -196,12 +195,7 @@ export class Game {
   }
 
   applyMove(move: Move) {
-    let oldState = this.state;
-    let newState = stateApplyMove(this, oldState, move);
-    if (newState != oldState) {
-      newState = stateApplyEffects(this, oldState, newState);
-    }
-    this.state = newState;
+    this.state = play(this, this.state, move);
     propagate(this);
     layout(this);
   }

@@ -1,7 +1,7 @@
-import { GameState } from "./types";
-import { Game } from "./game";
+import { GameState } from "../types";
+import { Game } from "../game";
 
-export function stateApplyEffects(
+export function processRowClears(
   game: Game,
   oldState: GameState,
   newState: GameState,
