@@ -11,7 +11,7 @@ export function step(game: Game, delta: number) {
       deck.alpha = deck.alpha * (1 - alpha) + 1 * alpha;
 
       if (player > 0) {
-        processAI(game, player);
+        processAI(game);
       }
     } else {
       deck.alpha = deck.alpha * (1 - alpha) + 0 * alpha;

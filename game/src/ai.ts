@@ -1,7 +1,7 @@
 import { Game } from "./game";
 import { GameState, Move } from "./types";
 
-function calculateBestMove(game: Game, state: GameState, depth: Number): Move {
+function calculateBestMove(game: Game, state: GameState): Move {
   let deck = state.decks[state.currentPlayer];
 
   let bestMove: Move = null;
@@ -70,12 +70,8 @@ function dist(x: number, y: number): number {
   return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 }
 
-export function processAI(game: Game, depth: number) {
-  let move = calculateBestMove(
-    game,
-    game.state,
-    game.players[game.state.currentPlayer],
-  );
+export function processAI(game: Game) {
+  let move = calculateBestMove(game, game.state);
 
   if (move) {
     game.applyMove(move);
