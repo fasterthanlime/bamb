@@ -7,7 +7,8 @@ import { play } from "../rules/play";
 
 function calculateBestMove(game: Game, rootState: GameState): ScoredMove {
   let rootNode = new Node(game, null, null, rootState);
-  let itermax = 500;
+  console.log(`AI is thinking...`);
+  let itermax = 1000;
   for (let i = 0; i < itermax; i++) {
     let node = rootNode;
     let state = rootState;
