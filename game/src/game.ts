@@ -97,6 +97,11 @@ export class Game extends GameBase {
   script: GameScript;
   blepper: Blepper;
 
+  sentAIRequest = false;
+  tutorialTextDelay = 0;
+  tutorialTextTarget = "";
+  tutorialText = "";
+
   constructor(app: PIXI.Application, settings: GameSettings) {
     super();
     this.fromSettings(settings);
@@ -106,8 +111,10 @@ export class Game extends GameBase {
       let msg = ev.data as WorkerOutgoingMessage;
 
       if (msg.task === "processAI") {
+        this.sentAIRequest = false;
         let { result } = msg;
         if (result.move) {
+          console.warn(`Got AI response back`);
           this.applyMove(result.move);
         }
       } else {
@@ -240,9 +247,32 @@ export class Game extends GameBase {
 
   tutorialNext(force = false) {
     let csi = this.currentScriptItem();
+    if (!csi) {
+      return;
+    }
+
+    if (csi.text && !force && this.tutorialTextTarget !== this.tutorialText) {
+      this.tutorialText = this.tutorialTextTarget;
+      let tui = this.displayObjects.tutorialUI;
+      tui.text.text = this.tutorialText;
+      return;
+    }
+
     if (force || !csi.move) {
       this.scriptIndex++;
       propagate(this);
     }
+  }
+
+  allTextShown(): boolean {
+    const csi = this.currentScriptItem();
+    if (!csi) {
+      return true;
+    }
+    if (!csi.text) {
+      return true;
+    }
+
+    return this.tutorialText === csi.text;
   }
 }

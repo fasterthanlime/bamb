@@ -51,6 +51,7 @@ export type BoardContainer = PIXI.Container & {
 
 export type TutorialUIContainer = PIXI.Container & {
   text: PIXI.Text;
+  forward: PIXI.Text;
 };
 
 export type CardContainer = PIXI.Container & {

@@ -10,7 +10,7 @@ import { Move } from "./types";
 // usually running after playing a move.
 export function propagate(game: Game) {
   let csi = game.currentScriptItem();
-  game.displayObjects.tutorialUI.interactive = csi && !csi.move;
+  game.displayObjects.tutorialUI.interactive = csi && !!csi.text;
 
   for (const player of [0, 1]) {
     const { cells } = game.state.decks[player];
@@ -121,6 +121,59 @@ export function propagate(game: Game) {
     }
   }
 
+  let highlightCleared = () => {
+    const card = game.dragTarget;
+    if (!card) {
+      return;
+    }
+    const drop = game.dragTarget.dragging.over;
+    if (!drop) {
+      return;
+    }
+    let nextState = placeCard(
+      game,
+      game.state,
+      {
+        cardId: card.spec.id,
+        placement: { col: drop.cell.col, row: drop.cell.row },
+        player: game.state.currentPlayer,
+      },
+      nullConsequences,
+    );
+
+    if (nextState === game.state) {
+      // invalid move, nothing to do
+    } else {
+      for (let col = 0; col < game.numCols; col++) {
+        const sum = game.boardSumCol(nextState.board, col);
+        let textObj = game.displayObjects.sums.cols[col];
+        setSum(textObj, sum);
+
+        if (sum === game.maxSum) {
+          for (let row = 0; row < game.numRows; row++) {
+            let highlight =
+              game.displayObjects.board.highlights[game.cellIndex(col, row)];
+            highlight.alpha = 1;
+          }
+        }
+      }
+
+      for (let row = 0; row < game.numRows; row++) {
+        const sum = game.boardSumRow(nextState.board, row);
+        let textObj = game.displayObjects.sums.rows[row];
+        setSum(textObj, sum);
+
+        if (sum === game.maxSum) {
+          for (let col = 0; col < game.numCols; col++) {
+            let highlight =
+              game.displayObjects.board.highlights[game.cellIndex(col, row)];
+            highlight.alpha = 1;
+          }
+        }
+      }
+    }
+  };
+
   if (game.phase.transitionPhase) {
     let tp = game.phase.transitionPhase;
 
@@ -148,7 +201,9 @@ export function propagate(game: Game) {
     if (game.dragTarget && game.dragTarget.dragging.over) {
       {
         const cell = game.dragTarget.dragging.over.cell;
-        if (cell.col != col || cell.row != row) {
+        if (cell.col == col && cell.row == row) {
+          highlightCleared();
+        } else {
           // invalid move, highlight invalid cell
           let highlight =
             game.displayObjects.board.highlights[
@@ -182,15 +237,6 @@ export function propagate(game: Game) {
         highlight.tint = 0xff0000;
         highlight.alpha = 1;
       }
-
-      for (let col = 0; col < game.numCols; col++) {
-        let textObj = game.displayObjects.sums.cols[col];
-        setSum(textObj, 0);
-      }
-      for (let row = 0; row < game.numRows; row++) {
-        let textObj = game.displayObjects.sums.rows[row];
-        setSum(textObj, 0);
-      }
     } else {
       // valid move, highlight target cell
       {
@@ -199,35 +245,9 @@ export function propagate(game: Game) {
           game.displayObjects.board.highlights[game.cellIndex(col, row)];
         highlight.alpha = 1;
       }
-
-      for (let col = 0; col < game.numCols; col++) {
-        const sum = game.boardSumCol(nextState.board, col);
-        let textObj = game.displayObjects.sums.cols[col];
-        setSum(textObj, sum);
-
-        if (sum === game.maxSum) {
-          for (let row = 0; row < game.numRows; row++) {
-            let highlight =
-              game.displayObjects.board.highlights[game.cellIndex(col, row)];
-            highlight.alpha = 1;
-          }
-        }
-      }
-
-      for (let row = 0; row < game.numRows; row++) {
-        const sum = game.boardSumRow(nextState.board, row);
-        let textObj = game.displayObjects.sums.rows[row];
-        setSum(textObj, sum);
-
-        if (sum === game.maxSum) {
-          for (let col = 0; col < game.numCols; col++) {
-            let highlight =
-              game.displayObjects.board.highlights[game.cellIndex(col, row)];
-            highlight.alpha = 1;
-          }
-        }
-      }
     }
+
+    highlightCleared();
   }
 
   if (game.currentSnapshot) {
@@ -267,7 +287,6 @@ export function propagate(game: Game) {
   if (csi) {
     if (csi.text) {
       tui.alpha = 1;
-      tui.text.text = csi.text;
     }
   } else {
     tui.alpha = 0;
@@ -296,10 +315,14 @@ export function propagate(game: Game) {
           game.applyMove(move);
         }
       } else {
-        game.sendWorkerMessage({
-          task: "processAI",
-          gameMessage: game.toMessage(),
-        });
+        if (!game.sentAIRequest) {
+          game.sentAIRequest = true;
+          console.warn("Sending processAI...");
+          game.sendWorkerMessage({
+            task: "processAI",
+            gameMessage: game.toMessage(),
+          });
+        }
       }
     }
   }
