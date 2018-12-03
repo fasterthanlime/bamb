@@ -49,6 +49,10 @@ export type BoardContainer = PIXI.Container & {
   highlights: PIXI.Graphics[];
 };
 
+export type TutorialUIContainer = PIXI.Container & {
+  text: PIXI.Text;
+};
+
 export type CardContainer = PIXI.Container & {
   card: Card;
 };

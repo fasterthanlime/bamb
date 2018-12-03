@@ -15,9 +15,11 @@ import {
   Move,
   SumsGraphics,
   UIContainer,
+  TutorialUIContainer,
 } from "./types";
 import { WorkerIncomingMessage, WorkerOutgoingMessage } from "./types-worker";
 import { computeScore } from "./ai/compute-score";
+import { GameScript } from "./script";
 
 export interface GameCards {
   [cardId: string]: Card;
@@ -28,6 +30,7 @@ export interface GameSettings {
   numRows: number;
   maxSum: number;
   players: Player[];
+  script?: GameScript;
 }
 
 export enum PlayerKind {
@@ -69,6 +72,7 @@ export class Game extends GameBase {
     sums: SumsGraphics;
     gameUI: UIContainer;
     menuUI: UIContainer;
+    tutorialUI: TutorialUIContainer;
   };
   dimensions: {
     borderRadius: number;
@@ -79,6 +83,8 @@ export class Game extends GameBase {
     deckVertPadding: number;
     boardWidth: number;
     boardHeight: number;
+    tutorialWidth: number;
+    tutorialHeight: number;
   };
   cards: GameCards = {};
   dragTarget: Card;
@@ -86,10 +92,13 @@ export class Game extends GameBase {
   phase: GamePhase;
   currentSnapshot: GameSnapshot;
   shouldRestart: boolean;
+  scriptIndex = 0;
+  script: GameScript;
 
   constructor(app: PIXI.Application, settings: GameSettings) {
     super();
     this.fromSettings(settings);
+    this.script = settings.script;
     this.worker = new Worker("worker.js");
     this.worker.onmessage = (ev: MessageEvent) => {
       let msg = ev.data as WorkerOutgoingMessage;
@@ -105,9 +114,6 @@ export class Game extends GameBase {
     };
     this.app = app;
 
-    // this.phase = {
-    //   mainMenuPhase: {},
-    // };
     this.phase = {
       movePhase: {},
     };
@@ -216,6 +222,21 @@ export class Game extends GameBase {
         propagate(this);
         layout(this);
       }
+    }
+  }
+
+  currentScriptItem() {
+    if (!this.script) {
+      return null;
+    }
+    return this.script.items[this.scriptIndex];
+  }
+
+  tutorialNext(force = false) {
+    let csi = this.currentScriptItem();
+    if (force || !csi.move) {
+      this.scriptIndex++;
+      propagate(this);
     }
   }
 }

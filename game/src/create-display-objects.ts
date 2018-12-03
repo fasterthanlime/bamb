@@ -7,6 +7,7 @@ import {
   DecksGraphics,
   UIContainer,
   BoardContainer,
+  TutorialUIContainer,
 } from "./types";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
 import { propagate } from "./propagate";
@@ -35,6 +36,8 @@ export function createDisplayObjects(game: Game) {
   const deckVertPadding = 8;
   const boardWidth = game.numCols * (cardSide + cardPadding);
   const boardHeight = game.numCols * (cardSide + cardPadding);
+  const tutorialWidth = 700;
+  const tutorialHeight = 110;
   game.dimensions = {
     borderRadius,
     deckWidth,
@@ -44,6 +47,8 @@ export function createDisplayObjects(game: Game) {
     cardPadding,
     boardWidth,
     boardHeight,
+    tutorialWidth,
+    tutorialHeight,
   };
 
   {
@@ -53,6 +58,7 @@ export function createDisplayObjects(game: Game) {
     const trash = createTrash(game);
     const board = createBoard(game);
     const sums = createSums(game);
+    const tutorialUI = createTutorialUI(game);
 
     // UI modules
     const gameUI = createGameUI(game);
@@ -67,6 +73,7 @@ export function createDisplayObjects(game: Game) {
       sums,
       gameUI,
       menuUI,
+      tutorialUI,
     };
   }
 }
@@ -362,7 +369,7 @@ function createGameUI(game: Game): UIContainer {
     restartButton.addListener("pointerup", e => (game.shouldRestart = true));
   }
 
-  game.container.addChild(uiContainer);
+  // game.container.addChild(uiContainer);
   return uiContainer;
 }
 
@@ -401,8 +408,36 @@ function createMenuUI(game: Game): UIContainer {
     });
   }
 
-  game.container.addChild(uiContainer);
+  // game.container.addChild(uiContainer);
   return uiContainer;
+}
+
+function createTutorialUI(game: Game): TutorialUIContainer {
+  const D = game.dimensions;
+  let tutorialUI = new PIXI.Container() as TutorialUIContainer;
+  tutorialUI.on("pointerup", () => {
+    game.tutorialNext();
+  });
+
+  let rect = new PIXI.Graphics();
+  rect.lineStyle(4, 0xffffff, 1);
+  rect.beginFill(0x333333, 1);
+  rect.drawRoundedRect(0, 0, D.tutorialWidth, D.tutorialHeight, D.borderRadius);
+  tutorialUI.addChild(rect);
+
+  let text = new PIXI.Text("Hello this is tutorial", {
+    fontFamily,
+    fontSize: 22,
+    lineHeight: 22 * 1.4,
+    fill: 0xffffff,
+  });
+  text.position.set(15, 15);
+  tutorialUI.text = text;
+  tutorialUI.addChild(text);
+
+  game.container.addChild(tutorialUI);
+
+  return tutorialUI;
 }
 
 export enum Icon {

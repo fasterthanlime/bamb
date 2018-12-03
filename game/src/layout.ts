@@ -25,6 +25,12 @@ export function layout(game: Game, immediate = false) {
     );
   }
 
+  const tutorial = game.displayObjects.tutorialUI;
+  tutorial.position.set(
+    width / 2 - D.tutorialWidth / 2,
+    game.displayObjects.decks[0].container.position.y,
+  );
+
   game.displayObjects.sums.container.position.set(
     board.position.x,
     board.position.y,

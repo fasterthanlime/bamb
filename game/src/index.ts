@@ -8,9 +8,56 @@ import * as howler from "howler";
 
 import track1 from "./songs/track1.ogg";
 import { Icon, fontFamily } from "./create-display-objects";
+import { GameScript } from "./script";
 let trackPath = (path: string) => {
   return path.replace(/^\//, "");
 };
+
+let tutorialScript = (): GameScript => ({
+  items: [
+    {
+      text: "Welcome to the tutorial!\nClick this box to continue.",
+    },
+    {
+      text: "To begin, drag the 2 from your deck to the board",
+      move: {
+        value: 2,
+        player: 0,
+        placement: { col: 1, row: 1 },
+      },
+    },
+    {
+      text: "Good! You have a 2 on the board, so you have 2 points.",
+    },
+    {
+      text: "Now it's the computer's turn, let's see what it does...",
+    },
+    {
+      move: {
+        value: 5,
+        player: 1,
+        placement: { col: 2, row: 1 },
+      },
+    },
+    {
+      text:
+        "The computer played a 5 next to your 2.\nIt has the highest score, but not for long!",
+    },
+    {
+      text:
+        "Whenever the cards in a row or column add up to 8,\nthey're all discarded.",
+    },
+    {
+      text:
+        "Let's use that to your advantage.\nPlay your 1 to discard the whole row.",
+      move: {
+        value: 1,
+        player: 0,
+        placement: { col: 0, row: 1 },
+      },
+    },
+  ],
+});
 
 const gameSettings: GameSettings = {
   numCols: 4,
@@ -21,6 +68,7 @@ const gameSettings: GameSettings = {
     { name: "blue", kind: PlayerKind.Human },
     // { name: "blue", kind: PlayerKind.AI, aiType: "random" },
   ],
+  script: tutorialScript(),
 };
 
 interface AppSettings {
@@ -155,7 +203,7 @@ function main() {
       buttonCaption.text = "";
     });
     ruleButton.on("pointerup", () => {
-      alert("TODO");
+      alert("Drag cards to the ");
     });
     ruleButton.position.set(20 + 60 + 60, 20);
     appUI.addChild(ruleButton);
@@ -217,7 +265,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await new FontFaceObserver("Roboto").load();
   await new FontFaceObserver("FontAwesome").load();
-  await buttonPromise;
+  // TODO: re-enable when Chrome 71 lands I guess ?
+  // await buttonPromise;
   splash.parentNode.removeChild(splash);
   main();
 });

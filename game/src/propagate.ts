@@ -4,10 +4,14 @@ import { play } from "./rules/play";
 import { nullConsequences } from "./rules/consequences";
 import { placeCard } from "./rules/place-card";
 import { playerColors, Icon, fontFamily } from "./create-display-objects";
+import { Move } from "./types";
 
 // Translates `game.state` into `game.cards`,
 // usually running after playing a move.
 export function propagate(game: Game) {
+  let csi = game.currentScriptItem();
+  game.displayObjects.tutorialUI.interactive = csi && !csi.move;
+
   for (const player of [0, 1]) {
     const { cells } = game.state.decks[player];
     for (let i = 0; i < cells.length; i++) {
@@ -55,10 +59,24 @@ export function propagate(game: Game) {
   let draggableCardIds = {};
   let currentPlayer = game.players[game.state.currentPlayer];
   if (currentPlayer.kind == PlayerKind.Human) {
-    const currentDeck = game.state.decks[game.state.currentPlayer].cells;
-    for (const c of currentDeck) {
-      if (c.cardId) {
-        draggableCardIds[c.cardId] = true;
+    if (csi) {
+      if (csi.move) {
+        const currentDeck = game.state.decks[game.state.currentPlayer].cells;
+        for (const c of currentDeck) {
+          if (c.cardId) {
+            let card = game.cardSpecs[c.cardId];
+            if (card.value === csi.move.value) {
+              draggableCardIds[c.cardId] = true;
+            }
+          }
+        }
+      }
+    } else {
+      const currentDeck = game.state.decks[game.state.currentPlayer].cells;
+      for (const c of currentDeck) {
+        if (c.cardId) {
+          draggableCardIds[c.cardId] = true;
+        }
       }
     }
   }
@@ -103,7 +121,45 @@ export function propagate(game: Game) {
     }
   }
 
-  if (game.dragTarget && game.dragTarget.dragging.over) {
+  if (game.phase.transitionPhase) {
+    let tp = game.phase.transitionPhase;
+
+    for (const col of tp.cons.colsCleared) {
+      for (let row = 0; row < game.numRows; row++) {
+        let highlight =
+          game.displayObjects.board.highlights[game.cellIndex(col, row)];
+        highlight.alpha = 1;
+      }
+    }
+
+    for (const row of tp.cons.rowsCleared) {
+      for (let col = 0; col < game.numCols; col++) {
+        let highlight =
+          game.displayObjects.board.highlights[game.cellIndex(col, row)];
+        highlight.alpha = 1;
+      }
+    }
+  } else if (csi && csi.move) {
+    let { col, row } = csi.move.placement;
+    let highlight =
+      game.displayObjects.board.highlights[game.cellIndex(col, row)];
+    highlight.alpha = 1;
+
+    if (game.dragTarget && game.dragTarget.dragging.over) {
+      {
+        const cell = game.dragTarget.dragging.over.cell;
+        if (cell.col != col || cell.row != row) {
+          // invalid move, highlight invalid cell
+          let highlight =
+            game.displayObjects.board.highlights[
+              game.cellIndex(cell.col, cell.row)
+            ];
+          highlight.tint = 0xff0000;
+          highlight.alpha = 1;
+        }
+      }
+    }
+  } else if (game.dragTarget && game.dragTarget.dragging.over) {
     const card = game.dragTarget;
     const drop = game.dragTarget.dragging.over;
     let nextState = placeCard(
@@ -172,24 +228,6 @@ export function propagate(game: Game) {
         }
       }
     }
-  } else if (game.phase.transitionPhase) {
-    let tp = game.phase.transitionPhase;
-
-    for (const col of tp.cons.colsCleared) {
-      for (let row = 0; row < game.numRows; row++) {
-        let highlight =
-          game.displayObjects.board.highlights[game.cellIndex(col, row)];
-        highlight.alpha = 1;
-      }
-    }
-
-    for (const row of tp.cons.rowsCleared) {
-      for (let col = 0; col < game.numCols; col++) {
-        let highlight =
-          game.displayObjects.board.highlights[game.cellIndex(col, row)];
-        highlight.alpha = 1;
-      }
-    }
   }
 
   if (game.currentSnapshot) {
@@ -225,15 +263,44 @@ export function propagate(game: Game) {
     }
   }
 
+  let tui = game.displayObjects.tutorialUI;
+  if (csi) {
+    if (csi.text) {
+      tui.alpha = 1;
+      tui.text.text = csi.text;
+    }
+  } else {
+    tui.alpha = 0;
+  }
+
   if (game.phase.movePhase) {
     if (currentPlayer.kind == PlayerKind.AI) {
-      // let cp = game.state.currentPlayer;
-      // let dex = game.displayObjects.decks;
-      // dex[1 - cp].text.text = "AI's thinking...";
-      game.sendWorkerMessage({
-        task: "processAI",
-        gameMessage: game.toMessage(),
-      });
+      if (csi) {
+        if (csi.move) {
+          let deck = game.state.decks[game.state.currentPlayer];
+          let cardId: any;
+          for (const c of deck.cells) {
+            if (c.cardId) {
+              let card = game.cardSpecs[c.cardId];
+              if (card.value === csi.move.value) {
+                cardId = card.id;
+                break;
+              }
+            }
+          }
+          let move: Move = {
+            cardId,
+            placement: csi.move.placement,
+            player: game.state.currentPlayer,
+          };
+          game.applyMove(move);
+        }
+      } else {
+        game.sendWorkerMessage({
+          task: "processAI",
+          gameMessage: game.toMessage(),
+        });
+      }
     }
   }
 }

@@ -67,7 +67,7 @@ export class GameBase implements GameBaseMessage {
     }
     this.players = settings.players;
     this.state = {
-      currentPlayer: 0,
+      currentPlayer: 1,
       board: emptyBoard(numCols, numRows),
       decks: [{ cells: [] }, { cells: [] }],
     };

@@ -52,6 +52,7 @@ export function step(game: Game, delta: number) {
       };
       game.currentSnapshot = null;
       game.checkEnd();
+      game.tutorialNext(true);
       propagate(game);
       layout(game);
     }
@@ -108,7 +109,8 @@ export function step(game: Game, delta: number) {
     clock.alpha = 0;
   }
 
-  if (game.phase.movePhase) {
+  const csi = game.currentScriptItem();
+  if (game.phase.movePhase && !csi) {
     let player = game.state.currentPlayer;
     let currentPlayer = game.players[player];
     if (currentPlayer.kind === PlayerKind.AI) {
