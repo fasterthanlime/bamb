@@ -5,6 +5,7 @@ const {
   QuantumPlugin,
   CSSResourcePlugin,
   CSSPlugin,
+  CopyPlugin,
 } = require("fuse-box");
 context(
   class {
@@ -15,6 +16,7 @@ context(
         output: "dist/$name.js",
         // sourceMaps: !this.isProduction,
         plugins: [
+          CopyPlugin({ files: ["*.ogg"] }),
           [
             CSSResourcePlugin({
               dist: "dist/fonts",

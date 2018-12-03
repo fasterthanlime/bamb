@@ -4,7 +4,8 @@ import { layout } from "./layout";
 import "./main.css";
 import { step } from "./step";
 import * as FontFaceObserver from "fontfaceobserver";
-import { WorkerOutgoingMessage } from "./types-worker";
+import * as howler from "howler";
+import track1 from "./songs/track1.ogg";
 
 const gameSettings: GameSettings = {
   numCols: 4,
@@ -12,12 +13,20 @@ const gameSettings: GameSettings = {
   maxSum: 8,
   players: [
     { name: "red", kind: PlayerKind.AI },
-    // { name: "blue", kind: PlayerKind.Human },
-    { name: "blue", kind: PlayerKind.AI, aiType: "random" },
+    { name: "blue", kind: PlayerKind.Human },
+    // { name: "blue", kind: PlayerKind.AI, aiType: "random" },
   ],
 };
 
+console.log("track 1: ", track1);
+
 function main() {
+  const bgm = new howler.Howl({
+    src: [track1],
+    loop: true,
+    autoplay: true,
+  });
+
   const app = new PIXI.Application({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -51,7 +60,16 @@ function main() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  const splash = document.querySelector(".splash");
+  const buttonPromise = new Promise((resolve, reject) => {
+    splash.querySelector("button").addEventListener("click", () => {
+      resolve();
+    });
+  });
+
   await new FontFaceObserver("Roboto").load();
   await new FontFaceObserver("FontAwesome").load();
+  await buttonPromise;
+  splash.parentNode.removeChild(splash);
   main();
 });
