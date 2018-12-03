@@ -1,25 +1,21 @@
+import { quickPlay } from "./constants";
 import { Game, PlayerKind } from "./game";
-import { GameSnapshot } from "./rules/consequences";
 import { layout } from "./layout";
 import { propagate } from "./propagate";
-import { quickPlay } from "./constants";
-import { listMoves } from "./ai/list-moves";
-import * as _ from "underscore";
-import { computeScore } from "./ai/compute-score";
+import { GameSnapshot } from "./rules/consequences";
 
 const alpha = 0.15;
 
 // Step is called every tick
 export function step(game: Game, delta: number) {
-  let playBtn = game.displayObjects.menuUI.getChildByName("playBtn");
-
-  if (game.phase.mainMenuPhase) {
-    playBtn.alpha = lerp(playBtn.alpha, 1, alpha);
-    playBtn.position.set(0, lerp(playBtn.position.y, 0, alpha));
-  } else {
-    playBtn.alpha = lerp(playBtn.alpha, 0, alpha);
-    playBtn.position.set(0, lerp(playBtn.position.y, -80, alpha));
-  }
+  let loopScale = (o: PIXI.DisplayObject) => {
+    let scale = o.scale.x;
+    scale += delta * 0.005;
+    if (scale > 1) {
+      scale = 0.75;
+    }
+    o.scale.set(scale, scale);
+  };
 
   if (game.phase.transitionPhase) {
     const tp = game.phase.transitionPhase;
@@ -59,15 +55,6 @@ export function step(game: Game, delta: number) {
   }
 
   {
-    let loopScale = (o: PIXI.DisplayObject) => {
-      let scale = o.scale.x;
-      scale += delta * 0.005;
-      if (scale > 1) {
-        scale = 0.75;
-      }
-      o.scale.set(scale, scale);
-    };
-
     for (let row = 0; row < game.numRows; row++) {
       let textObj = game.displayObjects.sums.rows[row];
       loopScale(textObj);
@@ -122,6 +109,16 @@ export function step(game: Game, delta: number) {
         scale = 0.7;
       }
       clock.scale.set(scale, scale);
+    }
+  }
+
+  if (csi) {
+    let forward = game.displayObjects.tutorialUI.forward;
+    if (csi.move) {
+      forward.alpha = -1000;
+    } else {
+      loopScale(forward);
+      forward.alpha = lerp(forward.alpha, 1, 0.1);
     }
   }
 }

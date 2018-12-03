@@ -37,7 +37,7 @@ export function createDisplayObjects(game: Game) {
   const boardWidth = game.numCols * (cardSide + cardPadding);
   const boardHeight = game.numCols * (cardSide + cardPadding);
   const tutorialWidth = 700;
-  const tutorialHeight = 110;
+  const tutorialHeight = 120;
   game.dimensions = {
     borderRadius,
     deckWidth,
@@ -425,6 +425,16 @@ function createTutorialUI(game: Game): TutorialUIContainer {
   rect.drawRoundedRect(0, 0, D.tutorialWidth, D.tutorialHeight, D.borderRadius);
   tutorialUI.addChild(rect);
 
+  let next = new PIXI.Text(Icon.Forward, {
+    fontFamily: "FontAwesome",
+    fontSize: 38,
+    fill: 0xffffff,
+  });
+  next.anchor.set(0.5, 0.5);
+  next.position.set(D.tutorialWidth - 50, D.tutorialHeight / 2);
+  tutorialUI.forward = next;
+  tutorialUI.addChild(next);
+
   let text = new PIXI.Text("Hello this is tutorial", {
     fontFamily,
     fontSize: 22,
@@ -453,6 +463,7 @@ export enum Icon {
   PlusCircle = "\uf055",
   Book = "\uf02d",
   GraduationCap = "\uf19d",
+  Forward = "\uf04e",
 }
 
 function createIcon(
