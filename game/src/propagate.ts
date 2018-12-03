@@ -230,7 +230,6 @@ export function propagate(game: Game) {
       // let cp = game.state.currentPlayer;
       // let dex = game.displayObjects.decks;
       // dex[1 - cp].text.text = "AI's thinking...";
-      console.warn(`Sending processAI request...`);
       game.sendWorkerMessage({
         task: "processAI",
         gameMessage: game.toMessage(),

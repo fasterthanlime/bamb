@@ -19,7 +19,8 @@ import { createDisplayObjects } from "./create-display-objects";
 import { play } from "./rules/play";
 import { RecordingConsequences, GameSnapshot } from "./rules/consequences";
 import { GameBase } from "./game-base";
-import { WorkerIncomingMessage } from "./types-worker";
+import { WorkerIncomingMessage, WorkerOutgoingMessage } from "./types-worker";
+import { ScoredMove } from "./ai/list-moves";
 
 export interface GameCards {
   [cardId: string]: Card;
@@ -40,6 +41,7 @@ export enum PlayerKind {
 export interface Player {
   name: string;
   kind: PlayerKind;
+  aiType?: "mcts" | "random";
 }
 
 export interface GamePhase {
@@ -88,10 +90,22 @@ export class Game extends GameBase {
   currentSnapshot: GameSnapshot;
   shouldRestart: boolean;
 
-  constructor(app: PIXI.Application, worker: Worker, settings: GameSettings) {
+  constructor(app: PIXI.Application, settings: GameSettings) {
     super();
     this.fromSettings(settings);
-    this.worker = worker;
+    this.worker = new Worker("worker.js");
+    this.worker.onmessage = (ev: MessageEvent) => {
+      let msg = ev.data as WorkerOutgoingMessage;
+
+      if (msg.task === "processAI") {
+        let { result } = msg;
+        if (result.move) {
+          this.applyMove(result.move.move);
+        }
+      } else {
+        console.log(`Got message from worker: `, ev);
+      }
+    };
     this.app = app;
 
     this.phase = {
@@ -162,5 +176,10 @@ export class Game extends GameBase {
       this.dragTarget.dragging.over = null;
       propagate(this);
     }
+  }
+
+  destroy() {
+    this.worker.terminate();
+    this.container.parent.removeChild(this.container);
   }
 }

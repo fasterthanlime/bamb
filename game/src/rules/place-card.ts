@@ -9,6 +9,10 @@ export function placeCard(
   move: Move,
   cons: Consequences,
 ): GameState {
+  if (move.pass) {
+    return { ...prevState };
+  }
+
   // first, check that we're playing from the current player's hand
   let hasCard = false;
   const currentDeck = prevState.decks[prevState.currentPlayer];

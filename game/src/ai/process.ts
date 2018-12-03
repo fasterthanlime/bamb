@@ -6,6 +6,7 @@ import { play } from "../rules/play";
 import { GameState } from "../types";
 import { listMoves, ScoredMove } from "./list-moves";
 import { Node } from "./mcts";
+import { timeMax } from "../constants";
 
 export interface AIStats {
   humanChance: number;
@@ -20,16 +21,29 @@ export function calculateBestMove(
   game: GameBase,
   rootState: GameState,
 ): AIResult {
+  {
+    let ps = game.players[game.state.currentPlayer];
+    if (ps.aiType === "random") {
+      let randomMove = _.sample<ScoredMove>(
+        listMoves(game, game.state, game.state.currentPlayer),
+      );
+      let move = randomMove || game.passMove(rootState);
+      return {
+        move,
+        stats: { humanChance: -1 },
+      };
+    }
+  }
+
   let result: AIResult = {
     stats: {
       humanChance: 0,
     },
-    move: null,
+    move: game.passMove(rootState),
   };
   let rootNode = new Node(game, null, null, rootState);
   let startTime = Date.now();
-  let timeMax = 1200;
-  console.log(`AI is thinking for ${timeMax}ms...`);
+  // console.log(`AI is thinking for ${timeMax}ms...`);
   while (Date.now() - startTime < timeMax) {
     let node = rootNode;
     let state = rootState;
@@ -81,16 +95,13 @@ export function calculateBestMove(
   }
 
   let humanChance = (100 * rootNode.wins) / rootNode.visits;
-  console.log(`Human has ${humanChance.toFixed()}% chance of winning`);
+  // console.log(`Human has ${humanChance.toFixed()}% chance of winning`);
   result.stats.humanChance = humanChance;
-
-  rootNode.print();
 
   // return most visited node
   let sortedMoves = _.sortBy(rootNode.childNodes, c => c.visits);
   let bestNode = _.last(sortedMoves);
   if (bestNode) {
-    console.log(`bestNode: `, bestNode);
     result.move = bestNode.move;
   }
   return result;

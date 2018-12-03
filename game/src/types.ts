@@ -25,6 +25,7 @@ export interface Move {
   player: number;
   cardId: string;
   placement: BoardPlacement;
+  pass?: boolean;
 }
 
 export interface CardSpec {

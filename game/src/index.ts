@@ -1,18 +1,19 @@
 import * as PIXI from "pixi.js";
-import { Game, PlayerKind } from "./game";
+import { Game, PlayerKind, GameSettings } from "./game";
 import { layout } from "./layout";
 import "./main.css";
 import { step } from "./step";
 import * as FontFaceObserver from "fontfaceobserver";
 import { WorkerOutgoingMessage } from "./types-worker";
 
-const gameSettings = {
+const gameSettings: GameSettings = {
   numCols: 4,
   numRows: 3,
   maxSum: 8,
   players: [
     { name: "red", kind: PlayerKind.AI },
-    { name: "blue", kind: PlayerKind.Human },
+    // { name: "blue", kind: PlayerKind.Human },
+    { name: "blue", kind: PlayerKind.AI, aiType: "random" },
   ],
 };
 
@@ -24,8 +25,7 @@ function main() {
   });
   app.renderer.backgroundColor = 0x36393f;
 
-  const worker = new Worker("worker.js");
-  let game = new Game(app, worker, gameSettings);
+  let game = new Game(app, gameSettings);
 
   app.stage.addChild(game.container);
 
@@ -38,8 +38,8 @@ function main() {
   PIXI.ticker.shared.add((delta: number) => {
     if (game.shouldRestart) {
       console.log("restarted");
-      app.stage.removeChild(game.container);
-      game = new Game(app, worker, gameSettings);
+      game.destroy();
+      game = new Game(app, gameSettings);
       app.stage.addChild(game.container);
     }
 
@@ -48,23 +48,6 @@ function main() {
 
   document.body.appendChild(app.view);
   app.start();
-
-  worker.onmessage = function(this: Worker, ev: MessageEvent) {
-    let msg = ev.data as WorkerOutgoingMessage;
-
-    if (msg.task === "processAI") {
-      console.warn(`Got processAI response!`);
-      let { result } = msg;
-      if (result.move) {
-        game.applyMove(result.move.move);
-      } else {
-        console.log(`AI could not find move, passing`);
-        game.pass();
-      }
-    } else {
-      console.log(`Got message from worker: `, ev);
-    }
-  };
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

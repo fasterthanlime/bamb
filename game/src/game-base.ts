@@ -1,16 +1,16 @@
-import { GameSettings, GameCards, Player } from "./game";
-import {
-  GameState,
-  Card,
-  CardSpec,
-  BoardState,
-  CellState,
-  DeckState,
-  BoardPlacement,
-} from "./types";
-import { emptyBoard } from "./transforms";
 import * as uuidv4 from "uuid/v4";
 import { computeScore } from "./ai/compute-score";
+import { GameSettings, Player } from "./game";
+import { emptyBoard } from "./transforms";
+import {
+  BoardPlacement,
+  BoardState,
+  CardSpec,
+  CellState,
+  DeckState,
+  GameState,
+} from "./types";
+import { ScoredMove } from "./ai/list-moves";
 
 interface GameCardSpecs {
   [cardId: string]: CardSpec;
@@ -243,5 +243,17 @@ export class GameBase implements GameBaseMessage {
 
   describeCard(card: CardSpec): string {
     return `${this.playerName(card.player)} ${card.value}`;
+  }
+
+  passMove(state: GameState): ScoredMove {
+    return {
+      move: {
+        cardId: null,
+        placement: null,
+        player: state.currentPlayer,
+        pass: true,
+      },
+      score: 0,
+    };
   }
 }

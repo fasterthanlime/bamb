@@ -1,9 +1,8 @@
-import { Move, GameState } from "../types";
-import { Game } from "../game";
-import { computeScore } from "./compute-score";
-import { play } from "../rules/play";
-import { Consequences, nullConsequences } from "../rules/consequences";
 import { GameBase } from "../game-base";
+import { nullConsequences } from "../rules/consequences";
+import { play } from "../rules/play";
+import { GameState, Move } from "../types";
+import { computeScore } from "./compute-score";
 
 export interface ScoredMove {
   move: Move;

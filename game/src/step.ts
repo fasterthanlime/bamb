@@ -3,6 +3,7 @@ import { GameSnapshot } from "./rules/consequences";
 import { layout } from "./layout";
 import { propagate } from "./propagate";
 import { DisplayObject } from "pixi.js";
+import { quickPlay } from "./constants";
 
 const alpha = 0.15;
 
@@ -39,6 +40,9 @@ export function step(game: Game, delta: number) {
 
       let msElapsed = (delta * 1000) / 60;
       firstNonZeroSnap.millis -= msElapsed;
+      if (quickPlay) {
+        firstNonZeroSnap.millis = 0;
+      }
     } else {
       game.state = nextState;
       game.phase = {
@@ -76,7 +80,7 @@ export function step(game: Game, delta: number) {
 
     if (game.phase.movePhase) {
       if (player == game.state.currentPlayer) {
-        targetAlpha = 0;
+        targetAlpha = 0.2;
       }
     }
     deck.bg.alpha = deck.bg.alpha * (1 - alpha) + targetAlpha * alpha;
