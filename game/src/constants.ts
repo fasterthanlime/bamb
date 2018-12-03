@@ -1,2 +1,3 @@
-export const quickPlay = true;
-export const timeMax = 500;
+export const quickPlay = false;
+// export const timeMax = 1000;
+export const timeMax = 2000;

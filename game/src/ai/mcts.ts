@@ -1,21 +1,21 @@
-import { GameState } from "../types";
-import { ScoredMove, listMoves } from "./list-moves";
+import { GameState, Move } from "../types";
+import { listMoves } from "./list-moves";
 import * as _ from "underscore";
 import { GameBase } from "../game-base";
 
 export class Node {
-  move: ScoredMove | null;
+  move: Move | null;
   parentNode: Node | null;
   playerJustMoved: number;
 
   childNodes: Node[];
   wins: number;
   visits: number;
-  untriedMoves: ScoredMove[];
+  untriedMoves: Move[];
 
   constructor(
     game: GameBase,
-    move: ScoredMove | null,
+    move: Move | null,
     parent: Node | null,
     state: GameState,
   ) {
@@ -38,7 +38,7 @@ export class Node {
     return _.last(sortedChildren);
   }
 
-  addChild(game: GameBase, m: ScoredMove, s: GameState): Node {
+  addChild(game: GameBase, m: Move, s: GameState): Node {
     let n = new Node(game, m, this, s);
     this.untriedMoves = _.reject(this.untriedMoves, el => el === m);
     this.childNodes.push(n);

@@ -4,17 +4,12 @@ import { play } from "../rules/play";
 import { GameState, Move } from "../types";
 import { computeScore } from "./compute-score";
 
-export interface ScoredMove {
-  move: Move;
-  score: number;
-}
-
 export function listMoves(
   game: GameBase,
   state: GameState,
   player: number,
-): ScoredMove[] {
-  let moves: ScoredMove[] = [];
+): Move[] {
+  let moves: Move[] = [];
   let deck = state.decks[player];
 
   // goes over all the deck cards
@@ -40,10 +35,7 @@ export function listMoves(
           continue;
         }
 
-        moves.push({
-          move,
-          score: computeScore(game, newState, player),
-        });
+        moves.push(move);
       }
     }
   }

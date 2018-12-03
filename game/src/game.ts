@@ -97,7 +97,7 @@ export class Game extends GameBase {
       if (msg.task === "processAI") {
         let { result } = msg;
         if (result.move) {
-          this.applyMove(result.move.move);
+          this.applyMove(result.move);
         }
       } else {
         console.log(`Got message from worker: `, ev);

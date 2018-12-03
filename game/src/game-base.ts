@@ -9,8 +9,8 @@ import {
   CellState,
   DeckState,
   GameState,
+  Move,
 } from "./types";
-import { ScoredMove } from "./ai/list-moves";
 
 interface GameCardSpecs {
   [cardId: string]: CardSpec;
@@ -245,15 +245,12 @@ export class GameBase implements GameBaseMessage {
     return `${this.playerName(card.player)} ${card.value}`;
   }
 
-  passMove(state: GameState): ScoredMove {
+  passMove(state: GameState): Move {
     return {
-      move: {
-        cardId: null,
-        placement: null,
-        player: state.currentPlayer,
-        pass: true,
-      },
-      score: 0,
+      cardId: null,
+      placement: null,
+      player: state.currentPlayer,
+      pass: true,
     };
   }
 }

@@ -12,8 +12,8 @@ const gameSettings: GameSettings = {
   maxSum: 8,
   players: [
     { name: "red", kind: PlayerKind.AI },
-    // { name: "blue", kind: PlayerKind.Human },
-    { name: "blue", kind: PlayerKind.AI, aiType: "random" },
+    { name: "blue", kind: PlayerKind.Human },
+    // { name: "blue", kind: PlayerKind.AI, aiType: "random" },
   ],
 };
 

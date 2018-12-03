@@ -3,8 +3,8 @@ import { Game } from "../game";
 import { GameBase } from "../game-base";
 import { nullConsequences } from "../rules/consequences";
 import { play } from "../rules/play";
-import { GameState } from "../types";
-import { listMoves, ScoredMove } from "./list-moves";
+import { GameState, Move } from "../types";
+import { listMoves } from "./list-moves";
 import { Node } from "./mcts";
 import { timeMax } from "../constants";
 
@@ -14,7 +14,7 @@ export interface AIStats {
 
 export interface AIResult {
   stats: AIStats;
-  move: ScoredMove;
+  move: Move;
 }
 
 export function calculateBestMove(
@@ -24,7 +24,7 @@ export function calculateBestMove(
   {
     let ps = game.players[game.state.currentPlayer];
     if (ps.aiType === "random") {
-      let randomMove = _.sample<ScoredMove>(
+      let randomMove = _.sample<Move>(
         listMoves(game, game.state, game.state.currentPlayer),
       );
       let move = randomMove || game.passMove(rootState);
@@ -44,7 +44,9 @@ export function calculateBestMove(
   let rootNode = new Node(game, null, null, rootState);
   let startTime = Date.now();
   // console.log(`AI is thinking for ${timeMax}ms...`);
+  let numIters = 0;
   while (Date.now() - startTime < timeMax) {
+    numIters++;
     let node = rootNode;
     let state = rootState;
 
@@ -54,7 +56,7 @@ export function calculateBestMove(
     while (_.isEmpty(node.untriedMoves) && !_.isEmpty(node.childNodes)) {
       // node is fully expanded and non-terminal
       node = node.select();
-      state = play(game, state, node.move.move, nullConsequences);
+      state = play(game, state, node.move, nullConsequences);
     }
 
     //===========================
@@ -62,8 +64,8 @@ export function calculateBestMove(
     //===========================
     if (!_.isEmpty(node.untriedMoves)) {
       // if we can expand (state/node is non-terminal)
-      let m = _.sample<ScoredMove>(node.untriedMoves);
-      state = play(game, state, m.move, nullConsequences);
+      let m = _.sample<Move>(node.untriedMoves);
+      state = play(game, state, m, nullConsequences);
       node = node.addChild(game, m, state);
     }
 
@@ -75,12 +77,7 @@ export function calculateBestMove(
       let moves = listMoves(game, state, state.currentPlayer);
       // while state is non-terminal
       while (!_.isEmpty(moves)) {
-        state = play(
-          game,
-          state,
-          _.sample<ScoredMove>(moves).move,
-          nullConsequences,
-        );
+        state = play(game, state, _.sample<Move>(moves), nullConsequences);
         moves = listMoves(game, state, state.currentPlayer);
       }
     }
@@ -93,6 +90,8 @@ export function calculateBestMove(
       node = node.parentNode;
     }
   }
+
+  console.log(`Did ${numIters} iteractions`);
 
   let humanChance = (100 * rootNode.wins) / rootNode.visits;
   // console.log(`Human has ${humanChance.toFixed()}% chance of winning`);
