@@ -9,6 +9,7 @@ import {
   BoardContainer,
 } from "./types";
 import { DropShadowFilter } from "@pixi/filter-drop-shadow";
+import { propagate } from "./propagate";
 
 // export const playerColors = [0x3d9970, 0x001f3f];
 export const playerColors = [0x7fdbff, 0xff4136];
@@ -56,7 +57,7 @@ export function createDisplayObjects(game: Game) {
     // UI modules
     const gameUI = createGameUI(game);
     // TODO: main menu
-    //    const menuUI = createMenuUI(game);
+    const menuUI = createMenuUI(game);
 
     game.displayObjects = {
       decks,
@@ -65,6 +66,7 @@ export function createDisplayObjects(game: Game) {
       board,
       sums,
       gameUI,
+      menuUI,
     };
   }
 }
@@ -363,8 +365,47 @@ function createGameUI(game: Game): UIContainer {
   return uiContainer;
 }
 
+function createMenuUI(game: Game): UIContainer {
+  const D = game.dimensions;
+
+  const uiContainer = new PIXI.Container();
+  {
+    let playButton = new PIXI.Graphics();
+    playButton.name = "playBtn";
+    playButton.tint = 0x36393f;
+    playButton.lineStyle(2, 0xffffff, 1);
+    playButton.beginFill(0xffffff);
+    playButton.drawRoundedRect(793, 437, 165, 80, 16);
+
+    let text = createIcon(817, 415, 100, 100, Icon.Play, 25, [1, 1]);
+    playButton.addChild(text);
+
+    uiContainer.addChild(playButton);
+
+    uiContainer.interactive = true;
+    uiContainer.addListener("pointerover", e => {
+      playButton.tint = 0xffffff;
+      text.tint = 0x36393f;
+    });
+    uiContainer.addListener("pointerout", e => {
+      playButton.tint = 0x36393f;
+      text.tint = 0xffffff;
+    });
+    uiContainer.addListener("pointerup", e => {
+      game.phase = {
+        movePhase: {},
+      };
+      propagate(game);
+    });
+  }
+
+  game.container.addChild(uiContainer);
+  return uiContainer;
+}
+
 enum Icon {
   Refresh = "",
+  Play = "",
   ArrowLeft = "\uf060",
   ArrowRight = "\uf061",
   ArrowUp = "\uf062",
@@ -385,12 +426,11 @@ function createIcon(
     fontFamily: iconFontFamily,
     fontSize: size,
     align: "center",
-    // fill: "#444444",
     fill: "white",
   });
   rBtnText.position.set(
-    x + (size * (alignment[0] | 0)) / 2,
-    y + (size * (alignment[1] | alignment[0] | 0)) / 2,
+    x + (w * (alignment[0] | 0)) / 2,
+    y + (h * (alignment[1] | 0)) / 2,
   );
   return rBtnText;
 }

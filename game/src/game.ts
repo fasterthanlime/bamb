@@ -46,6 +46,7 @@ export interface GamePhase {
   movePhase?: MovePhase;
   transitionPhase?: TransitionPhase;
   gameOverPhase?: GameOverPhase;
+  mainMenuPhase?: MovePhase;
 }
 
 export interface MovePhase {}
@@ -68,6 +69,7 @@ export class Game extends GameBase {
     trash: PIXI.Container;
     sums: SumsGraphics;
     gameUI: UIContainer;
+    menuUI: UIContainer;
   };
   dimensions: {
     borderRadius: number;
@@ -93,7 +95,7 @@ export class Game extends GameBase {
     this.app = app;
 
     this.phase = {
-      movePhase: {},
+      mainMenuPhase: {},
     };
     createDisplayObjects(this);
     propagate(this);
