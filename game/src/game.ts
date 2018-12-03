@@ -110,11 +110,6 @@ export class Game extends GameBase {
       return;
     }
 
-    console.log(`For this turn, got ${cons.snaps.length} snapshots: `);
-    for (const s of cons.snaps) {
-      console.log(`+${s.millis}ms: ${s.text}`);
-    }
-
     this.phase = {
       transitionPhase: {
         cons,
