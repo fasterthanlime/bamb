@@ -20,6 +20,7 @@ import {
 import { WorkerIncomingMessage, WorkerOutgoingMessage } from "./types-worker";
 import { computeScore } from "./ai/compute-score";
 import { GameScript } from "./script";
+import { Blepper } from "./blepper";
 
 export interface GameCards {
   [cardId: string]: Card;
@@ -94,6 +95,7 @@ export class Game extends GameBase {
   shouldRestart: boolean;
   scriptIndex = 0;
   script: GameScript;
+  blepper: Blepper;
 
   constructor(app: PIXI.Application, settings: GameSettings) {
     super();
@@ -117,6 +119,9 @@ export class Game extends GameBase {
     this.phase = {
       movePhase: {},
     };
+
+    this.blepper = new Blepper();
+
     createDisplayObjects(this);
     propagate(this);
     layout(this, true);
@@ -163,6 +168,7 @@ export class Game extends GameBase {
     if (!this.dragTarget) {
       return;
     }
+    this.blepper.playDropSfx();
     this.dragTarget.dragging.over = cc;
     propagate(this);
   }

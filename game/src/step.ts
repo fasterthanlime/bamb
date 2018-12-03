@@ -34,6 +34,7 @@ export function step(game: Game, delta: number) {
 
     if (firstNonZeroSnap) {
       if (game.currentSnapshot != firstNonZeroSnap) {
+        game.blepper.playDropSfx();
         game.currentSnapshot = firstNonZeroSnap;
         game.state = firstNonZeroSnap.state;
         propagate(game);
