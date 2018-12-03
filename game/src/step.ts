@@ -17,6 +17,10 @@ export function step(game: Game, delta: number) {
     o.scale.set(scale, scale);
   };
 
+  let resetScale = (o: PIXI.DisplayObject) => {
+    o.scale.set(1, 1);
+  };
+
   if (game.phase.transitionPhase) {
     const tp = game.phase.transitionPhase;
     const { cons, nextState } = tp;
@@ -113,12 +117,70 @@ export function step(game: Game, delta: number) {
   }
 
   if (csi) {
+    if (csi.text) {
+      if (game.tutorialTextTarget != csi.text) {
+        game.tutorialTextTarget = csi.text;
+        game.tutorialText = "";
+      }
+    }
+
     let forward = game.displayObjects.tutorialUI.forward;
-    if (csi.move) {
-      forward.alpha = -1000;
+    if (csi.move || game.tutorialText != game.tutorialTextTarget) {
+      forward.alpha = 0;
     } else {
       loopScale(forward);
       forward.alpha = lerp(forward.alpha, 1, 0.1);
+    }
+  }
+
+  {
+    let tui = game.displayObjects.tutorialUI;
+    if (game.tutorialText.length < game.tutorialTextTarget.length) {
+      if (game.tutorialTextDelay > 0) {
+        game.tutorialTextDelay--;
+      } else {
+        let sub = game.tutorialTextTarget.substr(game.tutorialText.length, 1);
+        game.tutorialText += sub;
+        tui.text.text = game.tutorialText;
+        if (sub === ",") {
+          game.tutorialTextDelay = 10;
+        } else if (sub === "\n") {
+          game.tutorialTextDelay = 30;
+        } else {
+          game.tutorialTextDelay = 1;
+        }
+      }
+    }
+  }
+
+  if (csi && csi.move && game.allTextShown()) {
+    let { col, row } = csi.move.placement;
+    let highlight =
+      game.displayObjects.board.highlights[game.cellIndex(col, row)];
+
+    let { value } = csi.move;
+    let deck = game.state.decks[game.state.currentPlayer];
+    let cardId: any;
+    for (const c of deck.cells) {
+      if (c.cardId) {
+        let card = game.cardSpecs[c.cardId];
+        if (card.value === value) {
+          cardId = card.id;
+        }
+      }
+    }
+
+    let card = game.cards[cardId];
+    if (game.dragTarget) {
+      loopScale(highlight);
+      if (card) {
+        resetScale(card.container);
+      }
+    } else {
+      resetScale(highlight);
+      if (card) {
+        loopScale(card.container);
+      }
     }
   }
 }

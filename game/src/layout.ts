@@ -52,6 +52,7 @@ export function layout(game: Game, immediate = false) {
   for (const cardId of Object.keys(game.cards)) {
     const card = game.cards[cardId];
     if (card.placement.deckPlacement) {
+      card.container.scale.set(1, 1);
       const place = card.placement.deckPlacement;
       const deck = game.displayObjects.decks[place.player];
 
@@ -60,6 +61,7 @@ export function layout(game: Game, immediate = false) {
       x += place.slot * (D.cardSide + D.cardPadding);
       card.targetPos.set(x, y);
     } else if (card.placement.boardPlacement) {
+      card.container.scale.set(1, 1);
       const place = card.placement.boardPlacement;
       let x = board.position.x + D.cardPadding + D.cardSide / 2;
       x += place.col * (D.cardSide + D.cardPadding);

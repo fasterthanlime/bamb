@@ -10,7 +10,7 @@ import { Move } from "./types";
 // usually running after playing a move.
 export function propagate(game: Game) {
   let csi = game.currentScriptItem();
-  game.displayObjects.tutorialUI.interactive = csi && !csi.move;
+  game.displayObjects.tutorialUI.interactive = csi && !!csi.text;
 
   for (const player of [0, 1]) {
     const { cells } = game.state.decks[player];
@@ -287,7 +287,6 @@ export function propagate(game: Game) {
   if (csi) {
     if (csi.text) {
       tui.alpha = 1;
-      tui.text.text = csi.text;
     }
   } else {
     tui.alpha = 0;
@@ -316,10 +315,14 @@ export function propagate(game: Game) {
           game.applyMove(move);
         }
       } else {
-        game.sendWorkerMessage({
-          task: "processAI",
-          gameMessage: game.toMessage(),
-        });
+        if (!game.sentAIRequest) {
+          game.sentAIRequest = true;
+          console.warn("Sending processAI...");
+          game.sendWorkerMessage({
+            task: "processAI",
+            gameMessage: game.toMessage(),
+          });
+        }
       }
     }
   }

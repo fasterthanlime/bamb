@@ -415,6 +415,7 @@ function createMenuUI(game: Game): UIContainer {
 function createTutorialUI(game: Game): TutorialUIContainer {
   const D = game.dimensions;
   let tutorialUI = new PIXI.Container() as TutorialUIContainer;
+  tutorialUI.buttonMode = true;
   tutorialUI.on("pointerup", () => {
     game.tutorialNext();
   });
