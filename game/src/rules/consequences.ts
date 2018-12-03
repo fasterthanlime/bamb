@@ -1,7 +1,6 @@
 import { GameState } from "../types";
 
 export interface GameSnapshot {
-  text: string;
   state: GameState;
   millis: number;
   clearedRow?: {
@@ -15,14 +14,12 @@ export interface GameSnapshot {
 export interface Consequences {
   clearedRow(row: number);
   clearedCol(col: number);
-  lostCard(player: number);
-  snapshot(step: GameSnapshot);
+  snapshot(f: () => GameSnapshot);
 }
 
 export class RecordingConsequences implements Consequences {
   rowsCleared: number[] = [];
   colsCleared: number[] = [];
-  lostCards: number[] = [];
   snaps: GameSnapshot[] = [];
 
   constructor() {}
@@ -35,20 +32,15 @@ export class RecordingConsequences implements Consequences {
     this.colsCleared.push(col);
   }
 
-  lostCard(player: number) {
-    this.lostCards[player]++;
-  }
-
-  snapshot(snap: GameSnapshot) {
-    this.snaps.push(snap);
+  snapshot(f: () => GameSnapshot) {
+    this.snaps.push(f());
   }
 }
 
 export class NullConsequences implements Consequences {
   clearedRow(row: number) {}
   clearedCol(col: number) {}
-  lostCard(player: number) {}
-  snapshot(snap: GameSnapshot) {}
+  snapshot(f: () => GameSnapshot) {}
 }
 
 export const nullConsequences = new NullConsequences();

@@ -91,7 +91,7 @@ export function calculateBestMove(
     }
   }
 
-  console.log(`Did ${numIters} iteractions`);
+  console.log(`Did ${numIters} iterations`);
 
   let humanChance = (100 * rootNode.wins) / rootNode.visits;
   // console.log(`Human has ${humanChance.toFixed()}% chance of winning`);

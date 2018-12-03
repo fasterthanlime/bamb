@@ -65,13 +65,13 @@ export function placeCard(
         game.boardSetCard(board, move.placement, move.cardId),
       );
 
-      cons.snapshot({
+      cons.snapshot(() => ({
         millis: 500,
         text: `${game.playerName(move.player)} plays a ${
           card.value
         } on ${onWhat}`,
         state,
-      });
+      }));
 
       if (underCard) {
         // place under card back into deck
@@ -79,13 +79,13 @@ export function placeCard(
           game.deckAddCard(deck, underCard.id),
         );
 
-        cons.snapshot({
+        cons.snapshot(() => ({
           millis: 500,
           text: `${card.value} returns to ${game.playerName(
             move.player,
           )}'s deck`,
           state,
-        });
+        }));
       }
 
       return state;
@@ -142,11 +142,11 @@ export function placeCard(
         game.boardTrashCard(board, move.cardId),
       );
 
-      cons.snapshot({
+      cons.snapshot(() => ({
         state,
         millis: 500,
         text: `cards get swapped`,
-      });
+      }));
 
       return state;
     }

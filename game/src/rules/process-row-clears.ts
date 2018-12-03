@@ -11,70 +11,56 @@ export function processRowClears(
 ): GameState {
   const newZones = computeHotZones(game, newState);
 
-  let rowsToClear = [];
-  let colsToClear = [];
-  for (const row of newZones.hotRows) {
-    rowsToClear.push(row);
-    cons.clearedRow(row);
-  }
-  for (const col of newZones.hotCols) {
-    colsToClear.push(col);
-    cons.clearedCol(col);
-  }
-
   let state = newState;
-  if (rowsToClear.length > 0 || colsToClear.length > 0) {
-    for (const col of colsToClear) {
-      cons.snapshot({
+  if (newZones.hotCols.length > 0 || newZones.hotRows.length > 0) {
+    for (const col of newZones.hotCols) {
+      cons.clearedCol(col);
+      cons.snapshot(() => ({
         state,
         text: `column ${col} clears`,
         millis: 700,
         clearedCol: { col },
-      });
+      }));
 
       for (let row = 0; row < game.numRows; row++) {
         const card = game.boardGetCard(state.board, col, row);
         if (card) {
-          state = game.stateTransformBoard(state, board =>
-            game.boardTrashCard(board, card.id),
-          );
-          state = game.stateTransformBoard(state, board =>
-            game.boardSetCard(board, { col, row }, undefined),
-          );
-          cons.lostCard(card.player);
-          cons.snapshot({
+          state = game.stateTransformBoard(state, board => {
+            board = game.boardTrashCard(board, card.id);
+            board = game.boardSetCard(board, { col, row }, undefined);
+            return board;
+          });
+          cons.snapshot(() => ({
             state,
             text: `${game.playerName(card.player)} loses ${card.value}`,
             millis: 200,
             clearedCol: { col },
-          });
+          }));
         }
       }
     }
-    for (const row of rowsToClear) {
-      cons.snapshot({
+    for (const row of newZones.hotRows) {
+      cons.snapshot(() => ({
         state,
         text: `row ${row} clears`,
         millis: 700,
         clearedRow: { row },
-      });
+      }));
 
       for (let col = 0; col < game.numCols; col++) {
         const card = game.boardGetCard(state.board, col, row);
         if (card) {
-          state = game.stateTransformBoard(state, board =>
-            game.boardTrashCard(board, card.id),
-          );
-          state = game.stateTransformBoard(state, board =>
-            game.boardSetCard(board, { col, row }, undefined),
-          );
-          cons.lostCard(card.player);
-          cons.snapshot({
+          state = game.stateTransformBoard(state, board => {
+            board = game.boardTrashCard(board, card.id);
+            board = game.boardSetCard(board, { col, row }, undefined);
+            return board;
+          });
+          cons.snapshot(() => ({
             state,
             text: `${game.playerName(card.player)} loses ${card.value}`,
             millis: 200,
             clearedRow: { row },
-          });
+          }));
         }
       }
     }
