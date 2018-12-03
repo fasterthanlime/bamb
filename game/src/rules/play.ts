@@ -17,7 +17,7 @@ export function play(
     return prevState;
   }
 
-  nextState = processRowClears(game, prevState, nextState, cons);
+  nextState = processRowClears(game, nextState, cons);
   nextState = game.stateAdvanceTurn(nextState);
   return nextState;
 }

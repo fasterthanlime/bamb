@@ -2,6 +2,7 @@ import { GameState, Move } from "../types";
 import { Game } from "../game";
 import { Consequences } from "./consequences";
 import { GameBase } from "../game-base";
+import { canPlay } from "./can-play";
 
 export function placeCard(
   game: GameBase,
@@ -9,45 +10,19 @@ export function placeCard(
   move: Move,
   cons: Consequences,
 ): GameState {
+  if (!canPlay(game, prevState, move)) {
+    return prevState;
+  }
+
   if (move.pass) {
     return { ...prevState };
   }
 
-  // first, check that we're playing from the current player's hand
-  let hasCard = false;
-  const currentDeck = prevState.decks[prevState.currentPlayer];
-  for (const dc of currentDeck.cells) {
-    if (dc.cardId == move.cardId) {
-      // yes, we are!
-      hasCard = true;
-      break;
-    }
-  }
-
-  if (!hasCard) {
-    console.error(
-      `${move.cardId} is not in deck for player ${prevState.currentPlayer}`,
-    );
-    return prevState;
-  }
-
   const { col, row } = move.placement;
   let card = game.cardSpecs[move.cardId];
-  let underCard = game.boardGetCard(game.state.board, col, row);
+  let underCard = game.boardGetCard(prevState.board, col, row);
 
   if (typeof card.value === "number") {
-    if (underCard) {
-      if (underCard.player != card.player) {
-        // can't play over card of other player
-        return prevState;
-      }
-
-      if (underCard.value < card.value) {
-        // can only swap with lower-value card
-        return prevState;
-      }
-    }
-
     // cool, let's try to place it!
     {
       let state = prevState;
@@ -91,29 +66,8 @@ export function placeCard(
       return state;
     }
   } else if (typeof card.value === "string") {
-    if (!underCard) {
-      // can't play modifier card on blank space
-      return prevState;
-    }
-
     let [dcol, drow] = dirToColRow(card.value);
     let [newCol, newRow] = [col + dcol, row + drow];
-    if (newCol < 0) {
-      // can't drop cards off left edge of board
-      return prevState;
-    }
-    if (newCol >= game.numCols) {
-      // can't drop cards off right edge of board
-      return prevState;
-    }
-    if (newRow < 0) {
-      // can't drop cards off top edge of board
-      return prevState;
-    }
-    if (newRow >= game.numRows) {
-      // can't drop cards off bottom edge of board
-      return prevState;
-    }
 
     {
       let state = prevState;
@@ -155,7 +109,7 @@ export function placeCard(
   return prevState;
 }
 
-function dirToColRow(value: string): number[] {
+export function dirToColRow(value: string): number[] {
   switch (value) {
     case "L":
       return [-1, 0];

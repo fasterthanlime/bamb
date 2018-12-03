@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@pixi/filter-drop-shadow": "^2.6.0",
+    "clone-deep": "^4.0.1",
     "fontfaceobserver": "^2.1.0",
     "pixi-pause": "^1.0.3",
     "pixi.js": "^4.8.2",

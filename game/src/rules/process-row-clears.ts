@@ -5,13 +5,11 @@ import { GameBase } from "../game-base";
 
 export function processRowClears(
   game: GameBase,
-  oldState: GameState,
-  newState: GameState,
+  state: GameState,
   cons: Consequences,
 ): GameState {
-  const newZones = computeHotZones(game, newState);
+  const newZones = computeHotZones(game, state);
 
-  let state = newState;
   if (newZones.hotCols.length > 0 || newZones.hotRows.length > 0) {
     for (const col of newZones.hotCols) {
       cons.clearedCol(col);
@@ -40,6 +38,7 @@ export function processRowClears(
       }
     }
     for (const row of newZones.hotRows) {
+      cons.clearedRow(row);
       cons.snapshot(() => ({
         state,
         text: `row ${row} clears`,
@@ -64,6 +63,7 @@ export function processRowClears(
         }
       }
     }
+    return processRowClears(game, state, cons);
   }
   return state;
 }
