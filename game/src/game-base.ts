@@ -10,6 +10,7 @@ import {
 } from "./types";
 import { emptyBoard } from "./transforms";
 import * as uuidv4 from "uuid/v4";
+import { computeScore } from "./ai/compute-score";
 
 interface GameCardSpecs {
   [cardId: string]: CardSpec;
@@ -215,14 +216,10 @@ export class GameBase implements GameBaseMessage {
 
   stateGetResult(state: GameState, player: number): number {
     let scores = [0, 0];
-    for (const c of state.board.cells) {
-      if (!c.cardId) {
-        continue;
-      }
-      const card = this.cardSpecs[c.cardId];
-      scores[card.player] += 100;
-      scores[card.player] += card.value;
+    for (const player of [0, 1]) {
+      scores[player] = computeScore(this, state, player);
     }
+
     let ourScore = scores[player];
     let theirScore = scores[1 - player];
 

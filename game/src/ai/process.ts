@@ -27,9 +27,10 @@ export function calculateBestMove(
     move: null,
   };
   let rootNode = new Node(game, null, null, rootState);
-  console.log(`AI is thinking...`);
-  let itermax = 1000;
-  for (let i = 0; i < itermax; i++) {
+  let startTime = Date.now();
+  let timeMax = 1200;
+  console.log(`AI is thinking for ${timeMax}ms...`);
+  while (Date.now() - startTime < timeMax) {
     let node = rootNode;
     let state = rootState;
 
@@ -83,10 +84,13 @@ export function calculateBestMove(
   console.log(`Human has ${humanChance.toFixed()}% chance of winning`);
   result.stats.humanChance = humanChance;
 
+  rootNode.print();
+
   // return most visited node
   let sortedMoves = _.sortBy(rootNode.childNodes, c => c.visits);
   let bestNode = _.last(sortedMoves);
   if (bestNode) {
+    console.log(`bestNode: `, bestNode);
     result.move = bestNode.move;
   }
   return result;

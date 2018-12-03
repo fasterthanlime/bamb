@@ -23,9 +23,5 @@ export function computeScore(
     countCell(cell);
   }
 
-  for (const cell of state.decks[player].cells) {
-    countCell(cell);
-  }
-
   return valueOwned;
 }

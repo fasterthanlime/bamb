@@ -9,7 +9,7 @@ import { WorkerOutgoingMessage } from "./types-worker";
 const gameSettings = {
   numCols: 4,
   numRows: 3,
-  maxSum: 10,
+  maxSum: 8,
   players: [
     { name: "red", kind: PlayerKind.AI },
     { name: "blue", kind: PlayerKind.Human },
@@ -22,7 +22,6 @@ function main() {
     height: window.innerHeight,
     antialias: true,
   });
-  // app.renderer.backgroundColor = 0xfff1f1f1;
   app.renderer.backgroundColor = 0x36393f;
 
   const worker = new Worker("worker.js");
