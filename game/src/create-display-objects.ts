@@ -413,6 +413,11 @@ export enum Icon {
   ArrowUp = "\uf062",
   ArrowDown = "\uf063",
   Clock = "\uf017",
+  VolumeUp = "\uf028",
+  VolumeMute = "\uf6a9",
+  PlusCircle = "\uf055",
+  Book = "\uf02d",
+  GraduationCap = "\uf19d",
 }
 
 function createIcon(
