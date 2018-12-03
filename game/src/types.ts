@@ -1,5 +1,4 @@
 import { GameBaseMessage } from "./game-base";
-import { ScoredMove } from "./ai/list-moves";
 
 export interface DeckPlacement {
   player: number;
@@ -23,7 +22,7 @@ export interface CardPlacement {
 
 export interface Move {
   player: number;
-  cardId: string;
+  cardId: number;
   placement: BoardPlacement;
   pass?: boolean;
 }
@@ -31,7 +30,7 @@ export interface Move {
 export interface CardSpec {
   player: number;
   value: any;
-  id: string;
+  id: number;
 }
 
 export interface Card {
@@ -73,11 +72,11 @@ export interface GameState {
 
 export interface BoardState {
   cells: CellState[];
-  trashedCardIds: string[];
+  trashedCardIds: number[];
 }
 
 export interface CellState {
-  cardId?: string;
+  cardId?: number;
 }
 
 export interface DeckState {

@@ -13,7 +13,7 @@ import {
 } from "./types";
 
 interface GameCardSpecs {
-  [cardId: string]: CardSpec;
+  [cardId: number]: CardSpec;
 }
 
 export interface GameBaseMessage {
@@ -76,11 +76,12 @@ export class GameBase implements GameBaseMessage {
       [1, 2, 3, 4, 5, 6, 7, "U", "D"],
       [1, 2, 3, 4, 5, 6, 7, "U", "D"],
     ];
+    let cardIdSeed = 1;
     for (const player of [0, 1]) {
       const deckContent = deckContents[player];
       for (let i = 0; i < deckContent.length; i++) {
         let spec: CardSpec = {
-          id: uuidv4(),
+          id: cardIdSeed++,
           player,
           value: deckContent[i],
         };
@@ -150,10 +151,10 @@ export class GameBase implements GameBaseMessage {
     return { ...state, board: f(state.board) };
   }
 
-  cellsRemoveCard(prevCells: CellState[], cardId: string): CellState[] {
+  cellsRemoveCard(prevCells: CellState[], cardId: number): CellState[] {
     let cells = [...prevCells];
     for (let i = 0; i < cells.length; i++) {
-      if (cells[i].cardId == cardId) {
+      if (cells[i].cardId === cardId) {
         cells[i] = {};
       }
     }
@@ -174,11 +175,11 @@ export class GameBase implements GameBaseMessage {
     return this.cellsSet(cells, idx, f(cells[idx]));
   }
 
-  deckRemoveCard(deck: DeckState, cardId: string): DeckState {
+  deckRemoveCard(deck: DeckState, cardId: number): DeckState {
     return { ...deck, cells: this.cellsRemoveCard(deck.cells, cardId) };
   }
 
-  deckAddCard(prevDeck: DeckState, cardId: string): DeckState {
+  deckAddCard(prevDeck: DeckState, cardId: number): DeckState {
     let deck = { ...prevDeck };
     deck.cells = [...deck.cells];
     for (let i = 0; i < deck.cells.length; i++) {
@@ -190,7 +191,7 @@ export class GameBase implements GameBaseMessage {
     return deck;
   }
 
-  boardTrashCard(prevBoard: BoardState, cardId: string): BoardState {
+  boardTrashCard(prevBoard: BoardState, cardId: number): BoardState {
     let board = { ...prevBoard };
     board.trashedCardIds = [...board.trashedCardIds, cardId];
     return board;
@@ -199,7 +200,7 @@ export class GameBase implements GameBaseMessage {
   boardSetCard(
     prevBoard: BoardState,
     placement: BoardPlacement,
-    cardId: string,
+    cardId: number,
   ): BoardState {
     let board = { ...prevBoard };
     const { col, row } = placement;
