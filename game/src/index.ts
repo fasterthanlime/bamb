@@ -59,6 +59,7 @@ function main() {
     src: [trackPath(track1)],
     loop: true,
     autoplay: true,
+    volume: 0.6,
   });
 
   const app = new PIXI.Application({
