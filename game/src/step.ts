@@ -7,6 +7,16 @@ const alpha = 0.15;
 
 // Step is called every tick
 export function step(game: Game, delta: number) {
+  let playBtn = game.displayObjects.menuUI.getChildByName("playBtn");
+
+  if (game.phase.mainMenuPhase) {
+    playBtn.alpha = lerp(playBtn.alpha, 1, alpha);
+    playBtn.position.set(0, lerp(playBtn.position.y, 0, alpha));
+  } else {
+    playBtn.alpha = lerp(playBtn.alpha, 0, alpha);
+    playBtn.position.set(0, lerp(playBtn.position.y, -80, alpha));
+  }
+
   if (game.phase.transitionPhase) {
     const tp = game.phase.transitionPhase;
     const { cons, nextState } = tp;
@@ -63,4 +73,8 @@ export function step(game: Game, delta: number) {
       card.container.position.set(x, y);
     }
   }
+}
+
+function lerp(a: number, b: number, t: number): number {
+  return a * (1 - t) + b * t;
 }
