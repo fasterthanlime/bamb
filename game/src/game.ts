@@ -175,8 +175,8 @@ export class Game extends GameBase {
     if (!this.dragTarget) {
       return;
     }
-    this.blepper.playDropSfx();
     this.dragTarget.dragging.over = cc;
+    // (TODO) this.blepper.playPickUpSfx(); but annoying, but might need to be reimplemented with a better sound
     propagate(this);
   }
 

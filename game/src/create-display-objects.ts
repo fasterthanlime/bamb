@@ -130,6 +130,8 @@ function createCards(game: Game): PIXI.Container {
       const { card } = this;
       const parent = this.parent;
 
+      game.blepper.playPickUpSfx();
+
       card.dragging = {
         data: event.data,
         pos: new PIXI.Point(this.position.x, this.position.y),
@@ -155,6 +157,7 @@ function createCards(game: Game): PIXI.Container {
           placement: { col, row },
         });
       }
+      game.blepper.playDropSfx();
       card.dragging = null;
       game.setDragTarget(null);
       this.alpha = 1;
