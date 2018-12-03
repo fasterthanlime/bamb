@@ -3,7 +3,7 @@ import { computeScore } from "./ai/compute-score";
 import { play } from "./rules/play";
 import { nullConsequences } from "./rules/consequences";
 import { placeCard } from "./rules/place-card";
-import { playerColors } from "./create-display-objects";
+import { playerColors, Icon, fontFamily } from "./create-display-objects";
 
 // Translates `game.state` into `game.cards`,
 // usually running after playing a move.
@@ -71,9 +71,12 @@ export function propagate(game: Game) {
   let setSum = (textObj: PIXI.Text, sum: any) => {
     textObj.text = `${sum}`;
     textObj.style.fontSize = 28;
+    textObj.style.fontFamily = fontFamily;
     textObj.alpha = 1;
-    if (sum === "x") {
-      textObj.style.fill = "red";
+    if (typeof sum === "string") {
+      textObj.style.fill = "white";
+      textObj.style.fontSize = 32;
+      textObj.style.fontFamily = "FontAwesome";
     } else if (sum === game.maxSum) {
       textObj.style.fill = "orange";
     } else {
@@ -189,6 +192,19 @@ export function propagate(game: Game) {
     }
   }
 
+  if (game.currentSnapshot) {
+    if (game.currentSnapshot.clearedCol) {
+      let cc = game.currentSnapshot.clearedCol;
+      let textObj = game.displayObjects.sums.cols[cc.col];
+      setSum(textObj, Icon.ArrowDown);
+    }
+    if (game.currentSnapshot.clearedRow) {
+      let cr = game.currentSnapshot.clearedRow;
+      let textObj = game.displayObjects.sums.rows[cr.row];
+      setSum(textObj, Icon.ArrowRight);
+    }
+  }
+
   let dex = game.displayObjects.decks;
   let scores = [0, 0];
   for (const player of [0, 1]) {
@@ -200,7 +216,7 @@ export function propagate(game: Game) {
     let otherScore = scores[1 - player];
     let t = dex[player].text;
     t.text = `${score} pts`;
-    if (score > otherScore) {
+    if (score >= otherScore) {
       t.tint = playerColors[player];
       t.scale.set(1, 1);
     } else {

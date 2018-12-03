@@ -4,6 +4,12 @@ export interface GameSnapshot {
   text: string;
   state: GameState;
   millis: number;
+  clearedRow?: {
+    row: number;
+  };
+  clearedCol?: {
+    col: number;
+  };
 }
 
 export interface Consequences {

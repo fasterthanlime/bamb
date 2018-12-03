@@ -25,6 +25,13 @@ export function processRowClears(
   let state = newState;
   if (rowsToClear.length > 0 || colsToClear.length > 0) {
     for (const col of colsToClear) {
+      cons.snapshot({
+        state,
+        text: `column ${col} clears`,
+        millis: 700,
+        clearedCol: { col },
+      });
+
       for (let row = 0; row < game.numRows; row++) {
         const card = game.boardGetCard(state.board, col, row);
         if (card) {
@@ -39,11 +46,19 @@ export function processRowClears(
             state,
             text: `${game.playerName(card.player)} loses ${card.value}`,
             millis: 200,
+            clearedCol: { col },
           });
         }
       }
     }
     for (const row of rowsToClear) {
+      cons.snapshot({
+        state,
+        text: `row ${row} clears`,
+        millis: 700,
+        clearedRow: { row },
+      });
+
       for (let col = 0; col < game.numCols; col++) {
         const card = game.boardGetCard(state.board, col, row);
         if (card) {
@@ -58,6 +73,7 @@ export function processRowClears(
             state,
             text: `${game.playerName(card.player)} loses ${card.value}`,
             millis: 200,
+            clearedRow: { row },
           });
         }
       }

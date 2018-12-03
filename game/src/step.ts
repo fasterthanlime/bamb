@@ -2,6 +2,7 @@ import { Game, PlayerKind } from "./game";
 import { GameSnapshot } from "./rules/consequences";
 import { layout } from "./layout";
 import { propagate } from "./propagate";
+import { DisplayObject } from "pixi.js";
 
 const alpha = 0.15;
 
@@ -43,8 +44,29 @@ export function step(game: Game, delta: number) {
       game.phase = {
         movePhase: {},
       };
+      game.currentSnapshot = null;
       propagate(game);
       layout(game);
+    }
+  }
+
+  {
+    let loopScale = (o: PIXI.DisplayObject) => {
+      let scale = o.scale.x;
+      scale += delta * 0.005;
+      if (scale > 1) {
+        scale = 0.75;
+      }
+      o.scale.set(scale, scale);
+    };
+
+    for (let row = 0; row < game.numRows; row++) {
+      let textObj = game.displayObjects.sums.rows[row];
+      loopScale(textObj);
+    }
+    for (let col = 0; col < game.numCols; col++) {
+      let textObj = game.displayObjects.sums.cols[col];
+      loopScale(textObj);
     }
   }
 

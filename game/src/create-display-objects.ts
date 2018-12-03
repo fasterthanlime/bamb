@@ -29,7 +29,7 @@ export function createDisplayObjects(game: Game) {
   const borderRadius = 16;
   const cardSide = 80;
   const cardPadding = 6;
-  const cardsInDeck = 8;
+  const cardsInDeck = 9;
   const deckWidth = (cardSide + cardPadding) * cardsInDeck + cardPadding;
   const deckHeight = cardSide + 2 * cardPadding;
   const deckVertPadding = 8;
@@ -321,7 +321,7 @@ function createSums(game: Game): SumsGraphics {
     text.anchor.set(0.5, 0.5);
     text.position.set(
       D.cardSide / 2 + D.cardPadding + (D.cardSide + D.cardPadding) * col,
-      -12,
+      -18,
     );
     container.addChild(text);
     sums.cols.push(text);
@@ -331,6 +331,7 @@ function createSums(game: Game): SumsGraphics {
       fontSize: 20,
       fontFamily,
     });
+    text.alpha = 0;
     text.anchor.set(0.5, 0.5);
     text.position.set(
       -24,
@@ -357,8 +358,8 @@ function createGameUI(game: Game): UIContainer {
 
     uiContainer.addChild(restartButton);
 
-    uiContainer.interactive = true;
-    uiContainer.addListener("pointerup", e => (game.shouldRestart = true));
+    restartButton.interactive = true;
+    restartButton.addListener("pointerup", e => (game.shouldRestart = true));
   }
 
   game.container.addChild(uiContainer);
@@ -382,16 +383,17 @@ function createMenuUI(game: Game): UIContainer {
 
     uiContainer.addChild(playButton);
 
-    uiContainer.interactive = true;
-    uiContainer.addListener("pointerover", e => {
+    playButton.interactive = true;
+    playButton.addListener("pointerover", e => {
       playButton.tint = 0xffffff;
       text.tint = 0x36393f;
     });
-    uiContainer.addListener("pointerout", e => {
+    playButton.addListener("pointerout", e => {
       playButton.tint = 0x36393f;
       text.tint = 0xffffff;
     });
-    uiContainer.addListener("pointerup", e => {
+    playButton.addListener("pointerup", e => {
+      playButton.interactive = false;
       game.phase = {
         movePhase: {},
       };
@@ -403,7 +405,7 @@ function createMenuUI(game: Game): UIContainer {
   return uiContainer;
 }
 
-enum Icon {
+export enum Icon {
   Refresh = "",
   Play = "",
   ArrowLeft = "\uf060",

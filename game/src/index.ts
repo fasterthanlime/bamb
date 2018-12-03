@@ -8,8 +8,8 @@ import { WorkerOutgoingMessage } from "./types-worker";
 
 const gameSettings = {
   numCols: 4,
-  numRows: 4,
-  maxSum: 7,
+  numRows: 3,
+  maxSum: 10,
   players: [
     { name: "red", kind: PlayerKind.AI },
     { name: "blue", kind: PlayerKind.Human },
@@ -62,14 +62,6 @@ function main() {
         console.log(`AI could not find move, passing`);
         game.pass();
       }
-
-      // {
-      //   let humanChance = result.stats.humanChance;
-      //   let huDeck = game.displayObjects.decks[game.state.currentPlayer];
-      //   huDeck.text.text = `your turn!`;
-      //   let aiDeck = game.displayObjects.decks[1 - game.state.currentPlayer];
-      //   aiDeck.text.text = `~${(100 - humanChance).toFixed()}% win`;
-      // }
     } else {
       console.log(`Got message from worker: `, ev);
     }

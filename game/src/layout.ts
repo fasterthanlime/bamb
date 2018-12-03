@@ -15,13 +15,13 @@ export function layout(game: Game, immediate = false) {
     p1Deck.container.position.set(
       width / 2 - D.deckWidth / 2,
       // D.deckVertPadding,
-      board.position.y - D.deckHeight - 80,
+      board.position.y - D.deckHeight - 40,
     );
 
     p2Deck.container.position.set(
       width / 2 - D.deckWidth / 2,
       // height - D.deckHeight - D.deckVertPadding,
-      board.position.y + D.boardHeight + 80,
+      board.position.y + D.boardHeight + 40,
     );
   }
 
@@ -38,7 +38,7 @@ export function layout(game: Game, immediate = false) {
   {
     const trash = game.displayObjects.trash;
     trash.position.set(
-      Math.max(board.position.x - 160, D.cardPadding + D.cardSide / 2),
+      Math.max(board.position.x - 180, D.cardPadding + D.cardSide / 2),
       height / 2 - (D.cardSide + D.cardPadding),
     );
   }
