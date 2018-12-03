@@ -1,26 +1,23 @@
+import * as _ from "underscore";
+import { listMoves } from "./ai/list-moves";
+import { createDisplayObjects } from "./create-display-objects";
+import { GameBase } from "./game-base";
+import { layout } from "./layout";
+import { propagate } from "./propagate";
+import { GameSnapshot, RecordingConsequences } from "./rules/consequences";
+import { play } from "./rules/play";
 import {
+  BoardContainer,
   Card,
+  CellContainer,
+  DecksGraphics,
   GameState,
-  CellState,
-  DeckState,
-  BoardState,
-  BoardPlacement,
   Move,
   SumsGraphics,
-  DecksGraphics,
   UIContainer,
-  CellContainer,
-  BoardContainer,
 } from "./types";
-import { emptyBoard } from "./transforms";
-import { propagate } from "./propagate";
-import { layout } from "./layout";
-import { createDisplayObjects } from "./create-display-objects";
-import { play } from "./rules/play";
-import { RecordingConsequences, GameSnapshot } from "./rules/consequences";
-import { GameBase } from "./game-base";
 import { WorkerIncomingMessage, WorkerOutgoingMessage } from "./types-worker";
-import { ScoredMove } from "./ai/list-moves";
+import { computeScore } from "./ai/compute-score";
 
 export interface GameCards {
   [cardId: string]: Card;
@@ -108,8 +105,11 @@ export class Game extends GameBase {
     };
     this.app = app;
 
+    // this.phase = {
+    //   mainMenuPhase: {},
+    // };
     this.phase = {
-      mainMenuPhase: {},
+      movePhase: {},
     };
     createDisplayObjects(this);
     propagate(this);
@@ -130,13 +130,6 @@ export class Game extends GameBase {
         nextState,
       },
     };
-    this.state = nextState;
-  }
-
-  pass() {
-    this.state = this.stateAdvanceTurn(this.state);
-    propagate(this);
-    layout(this);
   }
 
   sendWorkerMessage(msg: WorkerIncomingMessage) {
@@ -181,5 +174,48 @@ export class Game extends GameBase {
   destroy() {
     this.worker.terminate();
     this.container.parent.removeChild(this.container);
+  }
+
+  checkEnd() {
+    // are we in an end condition?
+    let state = this.state;
+    if (_.isEmpty(listMoves(this, state, state.currentPlayer))) {
+      {
+        let numCards = 0;
+        for (const c of state.decks[state.currentPlayer].cells) {
+          if (c.cardId) {
+            numCards++;
+          }
+        }
+      }
+
+      // current player can't move, and..
+      state = this.stateAdvanceTurn(state);
+      if (_.isEmpty(listMoves(this, state, state.currentPlayer))) {
+        {
+          let numCards = 0;
+          for (const c of state.decks[state.currentPlayer].cells) {
+            if (c.cardId) {
+              numCards++;
+            }
+          }
+        }
+        // other player can't move either!
+        this.phase = {
+          gameOverPhase: {
+            scores: [
+              computeScore(this, this.state, 0),
+              computeScore(this, this.state, 1),
+            ],
+          },
+        };
+        console.log(
+          `Game over (on ${this.state.currentPlayer}'s turn') results: `,
+          this.phase.gameOverPhase.scores,
+        );
+        propagate(this);
+        layout(this);
+      }
+    }
   }
 }

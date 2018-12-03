@@ -1,2 +1,2 @@
 export const quickPlay = true;
-export const timeMax = 200;
+export const timeMax = 500;

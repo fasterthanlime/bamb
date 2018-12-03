@@ -2,8 +2,10 @@ import { Game, PlayerKind } from "./game";
 import { GameSnapshot } from "./rules/consequences";
 import { layout } from "./layout";
 import { propagate } from "./propagate";
-import { DisplayObject } from "pixi.js";
 import { quickPlay } from "./constants";
+import { listMoves } from "./ai/list-moves";
+import * as _ from "underscore";
+import { computeScore } from "./ai/compute-score";
 
 const alpha = 0.15;
 
@@ -49,6 +51,7 @@ export function step(game: Game, delta: number) {
         movePhase: {},
       };
       game.currentSnapshot = null;
+      game.checkEnd();
       propagate(game);
       layout(game);
     }
