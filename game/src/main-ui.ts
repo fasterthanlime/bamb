@@ -513,7 +513,7 @@ export function creditsMenu(state: AppState) {
 
   let exitButt = bctx.newButton(Icon.ArrowLeft, "Return to main menu", () => {
     disappearUI(() => {
-      state.endGame();
+      state.setPhase(AppPhase.MainMenu);
     });
   });
   buttons.addChild(exitButt);
