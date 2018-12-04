@@ -140,8 +140,7 @@ export const tutorialScript = (): GameScript => ({
       text: "Well done!\nThat concludes our tutorial.",
     },
     {
-      text:
-        "You can finish that game now, or start a new one with the\n(+) button on the top-left.\nEnjoy!",
+      text: "You're on your own now!",
     },
   ],
 });

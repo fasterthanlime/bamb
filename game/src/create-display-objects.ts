@@ -23,11 +23,12 @@ shadowFilter.alpha = 0.16;
 shadowFilter.distance = 1;
 shadowFilter.blur = 1;
 
+export const borderRadius = 16;
+
 // Create display objects is called right after a new game is started
 export function createDisplayObjects(game: Game) {
   game.container = new PIXI.Container();
 
-  const borderRadius = 16;
   const cardSide = 80;
   const cardPadding = 6;
   const cardsInDeck = 9;
@@ -468,6 +469,10 @@ export enum Icon {
   Book = "\uf02d",
   GraduationCap = "\uf19d",
   Forward = "\uf04e",
+  EllipsisV = "\uf142",
+  Cog = "\uf013",
+  SignOutAlt = "\uf2f5",
+  Trophy = "\uf091",
 }
 
 function createIcon(

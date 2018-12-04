@@ -1,34 +1,43 @@
-import * as PIXI from "pixi.js";
-import { Game, PlayerKind, GameSettings } from "./game";
-import { layout } from "./layout";
-import "./main.css";
-import { step } from "./step";
 import * as FontFaceObserver from "fontfaceobserver";
 import * as howler from "howler";
-
+import * as PIXI from "pixi.js";
+import { Game, GameSettings } from "./game";
+import { layout } from "./layout";
+import { backgroundColor, makeMainUI } from "./main-ui";
+import "./main.css";
 import track1 from "./songs/track1.ogg";
-import { Icon, fontFamily } from "./create-display-objects";
-import { GameScript } from "./script";
-import { tutorialScript } from "./tutorial";
-import { makeMainUI } from "./main-ui";
+import { step } from "./step";
+
 let trackPath = (path: string) => {
   return path.replace(/^\//, "");
 };
 
+export enum AppPhase {
+  MainMenu = "main-menu",
+  Game = "game",
+  Pause = "pause",
+}
+
 export interface AppState {
+  phase: AppPhase;
   settings: AppSettings;
   appUI: PIXI.Container;
   game: Game;
   startGame(gameSettings: GameSettings);
+  endGame();
+  setPhase(phase: AppPhase);
   saveSettings();
+  pixiApp: PIXI.Application;
 }
 
 interface AppSettings {
   music: boolean;
+  playedTutorial: boolean;
 }
 
 let defaultAppSettings: AppSettings = {
-  music: true,
+  music: false,
+  playedTutorial: false,
 };
 
 function main() {
@@ -65,7 +74,7 @@ function main() {
     height: window.innerHeight,
     antialias: true,
   });
-  app.renderer.backgroundColor = 0x36393f;
+  app.renderer.backgroundColor = backgroundColor;
 
   let gameContainer = new PIXI.Container();
   app.stage.addChild(gameContainer);
@@ -73,30 +82,45 @@ function main() {
   let appUI = new PIXI.Container();
   app.stage.addChild(appUI);
 
-  let appState: AppState;
-  let startGame = (gameSettings: GameSettings) => {
-    if (appState.game) {
-      let game = appState.game;
-      if (!game.phase.gameOverPhase) {
-        let hasEmptyDeckCells = false;
-        for (const player of [0, 1]) {
-          for (const c of game.state.decks[player].cells) {
-            if (!c.cardId) {
-              hasEmptyDeckCells = true;
-              break;
-            }
-          }
-        }
-        if (hasEmptyDeckCells) {
-          if (!window.confirm("Abandon current game and start a new one?")) {
-            return;
+  let confirmGame = () => {
+    let game = appState.game;
+    if (game && !game.phase.gameOverPhase) {
+      let hasEmptyDeckCells = false;
+      for (const player of [0, 1]) {
+        for (const c of game.state.decks[player].cells) {
+          if (!c.cardId) {
+            hasEmptyDeckCells = true;
+            break;
           }
         }
       }
-      appState.game.destroy();
+      if (hasEmptyDeckCells) {
+        if (!window.confirm("Abandon current game and start a new one?")) {
+          return false;
+        }
+      }
     }
+    return true;
+  };
+
+  let appState: AppState;
+  let endGame = () => {
+    if (appState.game) {
+      if (confirmGame()) {
+        appState.game.destroy();
+        appState.game = null;
+        appState.setPhase(AppPhase.MainMenu);
+      } else {
+        appState.setPhase(AppPhase.Game);
+      }
+    }
+  };
+  let startGame = (gameSettings: GameSettings) => {
+    endGame();
     appState.game = new Game(app, gameSettings);
     gameContainer.addChild(appState.game.container);
+    appState.setPhase(AppPhase.Game);
+    makeMainUI(appState);
   };
 
   appState = {
@@ -105,6 +129,13 @@ function main() {
     saveSettings,
     settings,
     startGame,
+    endGame,
+    pixiApp: app,
+    phase: AppPhase.MainMenu,
+    setPhase: (phase: AppPhase) => {
+      appState.phase = phase;
+      makeMainUI(appState);
+    },
   };
 
   window.addEventListener("resize", () => {
@@ -112,11 +143,12 @@ function main() {
     if (appState.game) {
       layout(appState.game, true);
     }
+    makeMainUI(appState);
   });
 
   PIXI.ticker.shared.autoStart = true;
   PIXI.ticker.shared.add((delta: number) => {
-    if (appState.game) {
+    if (appState.phase === AppPhase.Game && appState.game) {
       step(appState.game, delta);
     }
   });
