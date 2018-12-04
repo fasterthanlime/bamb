@@ -10,20 +10,18 @@ import track1 from "./songs/track1.ogg";
 import { Icon, fontFamily } from "./create-display-objects";
 import { GameScript } from "./script";
 import { tutorialScript } from "./tutorial";
+import { makeMainUI } from "./main-ui";
 let trackPath = (path: string) => {
   return path.replace(/^\//, "");
 };
 
-const gameSettings: GameSettings = {
-  numCols: 4,
-  numRows: 3,
-  maxSum: 8,
-  players: [
-    { name: "red", kind: PlayerKind.AI },
-    { name: "blue", kind: PlayerKind.Human },
-  ],
-  script: null,
-};
+export interface AppState {
+  settings: AppSettings;
+  appUI: PIXI.Container;
+  game: Game;
+  startGame(gameSettings: GameSettings);
+  saveSettings();
+}
 
 interface AppSettings {
   music: boolean;
@@ -75,145 +73,56 @@ function main() {
   let appUI = new PIXI.Container();
   app.stage.addChild(appUI);
 
-  let buttonCaption: PIXI.Text;
-  {
-    buttonCaption = new PIXI.Text("", {
-      fontFamily,
-      fontSize: 22,
-      fill: "white",
-    });
-    buttonCaption.position.set(20, 70);
-    appUI.addChild(buttonCaption);
-  }
-
-  let muteIcon: PIXI.Text;
-  let updateMuteIcon = () => {
-    if (muteIcon && muteIcon.parent) {
-      muteIcon.parent.removeChild(muteIcon);
+  let appState: AppState;
+  let startGame = (gameSettings: GameSettings) => {
+    if (appState.game) {
+      let game = appState.game;
+      if (!game.phase.gameOverPhase) {
+        let hasEmptyDeckCells = false;
+        for (const player of [0, 1]) {
+          for (const c of game.state.decks[player].cells) {
+            if (!c.cardId) {
+              hasEmptyDeckCells = true;
+              break;
+            }
+          }
+        }
+        if (hasEmptyDeckCells) {
+          if (!window.confirm("Abandon current game and start a new one?")) {
+            return;
+          }
+        }
+      }
+      appState.game.destroy();
     }
-    muteIcon = new PIXI.Text(settings.music ? Icon.VolumeUp : Icon.VolumeMute, {
-      fontFamily: "FontAwesome",
-      fontSize: 34,
-      fill: "white",
-    });
-    muteIcon.interactive = true;
-    muteIcon.on("pointerover", () => {
-      buttonCaption.text = settings.music ? "Disable sound" : "Enable sound";
-      buttonCaption.position.x = muteIcon.position.x;
-    });
-    muteIcon.on("pointerout", () => {
-      buttonCaption.text = "";
-    });
-    muteIcon.on("pointerup", () => {
-      settings.music = !settings.music;
-      saveSettings();
-      howler.Howler.mute(!settings.music);
-      updateMuteIcon();
-    });
-    muteIcon.position.set(20, 20);
-    appUI.addChild(muteIcon);
+    appState.game = new Game(app, gameSettings);
+    gameContainer.addChild(appState.game.container);
   };
-  updateMuteIcon();
 
-  let newGameButton: PIXI.Text;
-  {
-    newGameButton = new PIXI.Text(Icon.PlusCircle, {
-      fontFamily: "FontAwesome",
-      fontSize: 34,
-      fill: "white",
-    });
-    newGameButton.interactive = true;
-    newGameButton.on("pointerover", () => {
-      buttonCaption.text = "New game";
-      buttonCaption.position.x = newGameButton.position.x;
-    });
-    newGameButton.on("pointerout", () => {
-      buttonCaption.text = "";
-    });
-    newGameButton.on("pointerup", () => {
-      if (!game.phase.gameOverPhase) {
-        if (!window.confirm("Abandon current game and start a new one?")) {
-          return;
-        }
-      }
-      gameSettings.script = null;
-      game.shouldRestart = true;
-    });
-    newGameButton.position.set(20 + 60, 20);
-    appUI.addChild(newGameButton);
-  }
-
-  let ruleButton: PIXI.Text;
-  {
-    ruleButton = new PIXI.Text(Icon.Book, {
-      fontFamily: "FontAwesome",
-      fontSize: 34,
-      fill: "white",
-    });
-    ruleButton.interactive = true;
-    ruleButton.on("pointerover", () => {
-      buttonCaption.text = "Rule book";
-      buttonCaption.position.x = ruleButton.position.x;
-    });
-    ruleButton.on("pointerout", () => {
-      buttonCaption.text = "";
-    });
-    ruleButton.on("pointerup", () => {
-      alert("Drag cards to the ");
-    });
-    ruleButton.position.set(20 + 60 + 60, 20);
-    appUI.addChild(ruleButton);
-  }
-
-  let tutorialButton: PIXI.Text;
-  {
-    tutorialButton = new PIXI.Text(Icon.GraduationCap, {
-      fontFamily: "FontAwesome",
-      fontSize: 34,
-      fill: "white",
-    });
-    tutorialButton.interactive = true;
-    tutorialButton.on("pointerover", () => {
-      buttonCaption.text = "Tutorial";
-      buttonCaption.position.x = tutorialButton.position.x;
-    });
-    tutorialButton.on("pointerout", () => {
-      buttonCaption.text = "";
-    });
-    tutorialButton.on("pointerup", () => {
-      if (!game.phase.gameOverPhase) {
-        if (!window.confirm("Abandon current game and start tutorial?")) {
-          return;
-        }
-      }
-      gameSettings.script = tutorialScript();
-      game.shouldRestart = true;
-    });
-    tutorialButton.position.set(20 + 60 + 60 + 60, 20);
-    appUI.addChild(tutorialButton);
-  }
-
-  let game = new Game(app, gameSettings);
-  gameContainer.addChild(game.container);
+  appState = {
+    appUI,
+    game: null,
+    saveSettings,
+    settings,
+    startGame,
+  };
 
   window.addEventListener("resize", () => {
     app.renderer.resize(window.innerWidth, window.innerHeight);
-    layout(game, true);
+    if (appState.game) {
+      layout(appState.game, true);
+    }
   });
 
   PIXI.ticker.shared.autoStart = true;
   PIXI.ticker.shared.add((delta: number) => {
-    if (game.shouldRestart) {
-      console.log("restarted");
-      game.destroy();
-      game = new Game(app, gameSettings);
-      app.stage.addChild(game.container);
+    if (appState.game) {
+      step(appState.game, delta);
     }
-
-    step(game, delta);
   });
 
   document.body.appendChild(app.view);
+  makeMainUI(appState);
   app.start();
 }
 
