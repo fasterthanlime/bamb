@@ -456,8 +456,8 @@ function createTutorialUI(game: Game): TutorialUIContainer {
 }
 
 export enum Icon {
-  Refresh = "",
-  Play = "",
+  Refresh = "\uf01e",
+  Play = "\uf04b",
   ArrowLeft = "\uf060",
   ArrowRight = "\uf061",
   ArrowUp = "\uf062",
@@ -473,6 +473,13 @@ export enum Icon {
   Cog = "\uf013",
   SignOutAlt = "\uf2f5",
   Trophy = "\uf091",
+  ChessBoard = "\uf43c",
+  TheaterMasks = "\uf630",
+  Headphones = "\uf025",
+  HandsHelping = "\uf4c4",
+  MicrophoneAlt = "\uf3c9",
+  Leaf = "\uf06c",
+  Hammer = "\uf6e3",
 }
 
 function createIcon(

@@ -16,6 +16,12 @@ export enum AppPhase {
   MainMenu = "main-menu",
   Game = "game",
   Pause = "pause",
+  GameOver = "game-over",
+  Credits = "credits",
+}
+
+export interface GameResults {
+  scores: number[];
 }
 
 export interface AppState {
@@ -28,16 +34,21 @@ export interface AppState {
   setPhase(phase: AppPhase);
   saveSettings();
   pixiApp: PIXI.Application;
+  results?: GameResults;
 }
 
 interface AppSettings {
   music: boolean;
   playedTutorial: boolean;
+  allTimeWins: number;
+  allTimeLosses: number;
 }
 
 let defaultAppSettings: AppSettings = {
   music: false,
   playedTutorial: false,
+  allTimeWins: 0,
+  allTimeLosses: 0,
 };
 
 function main() {
@@ -95,7 +106,9 @@ function main() {
         }
       }
       if (hasEmptyDeckCells) {
-        if (!window.confirm("Abandon current game and start a new one?")) {
+        if (
+          !window.confirm("Are you sure you want to abandon your current game?")
+        ) {
           return false;
         }
       }
@@ -118,6 +131,18 @@ function main() {
   let startGame = (gameSettings: GameSettings) => {
     endGame();
     appState.game = new Game(app, gameSettings);
+    appState.results = null;
+    appState.game.onGameOver = gr => {
+      if (gr.scores[1] > gr.scores[0]) {
+        settings.allTimeWins++;
+      } else if (gr.scores[1] < gr.scores[0]) {
+        settings.allTimeLosses++;
+      }
+      appState.saveSettings();
+
+      appState.results = gr;
+      appState.setPhase(AppPhase.GameOver);
+    };
     gameContainer.addChild(appState.game.container);
     appState.setPhase(AppPhase.Game);
     makeMainUI(appState);

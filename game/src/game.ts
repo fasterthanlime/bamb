@@ -21,6 +21,7 @@ import { WorkerIncomingMessage, WorkerOutgoingMessage } from "./types-worker";
 import { computeScore } from "./ai/compute-score";
 import { GameScript } from "./script";
 import { Blepper } from "./blepper";
+import { GameResults } from ".";
 
 export interface GameCards {
   [cardId: string]: Card;
@@ -101,6 +102,8 @@ export class Game extends GameBase {
   tutorialTextDelay = 0;
   tutorialTextTarget = "";
   tutorialText = "";
+
+  onGameOver: (gr: GameResults) => void;
 
   constructor(app: PIXI.Application, settings: GameSettings) {
     super();
@@ -220,12 +223,13 @@ export class Game extends GameBase {
           }
         }
         // other player can't move either!
+        let scores = [
+          computeScore(this, this.state, 0),
+          computeScore(this, this.state, 1),
+        ];
         this.phase = {
           gameOverPhase: {
-            scores: [
-              computeScore(this, this.state, 0),
-              computeScore(this, this.state, 1),
-            ],
+            scores,
           },
         };
         console.log(
@@ -234,6 +238,19 @@ export class Game extends GameBase {
         );
         propagate(this);
         layout(this);
+        setTimeout(() => {
+          if (this.onGameOver) {
+            this.onGameOver({
+              scores,
+            });
+          }
+        }, 1000);
+      } else {
+        // ok, next player can move but not current player - if human, we need to pass
+        let cp = this.players[this.state.currentPlayer];
+        if (cp.kind === PlayerKind.Human) {
+          this.applyMove(this.passMove(this.state));
+        }
       }
     }
   }
