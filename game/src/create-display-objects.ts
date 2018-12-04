@@ -151,13 +151,24 @@ function createCards(game: Game): PIXI.Container {
       }
       const { over } = card.dragging;
       if (over) {
+        let valid = true;
         const { col, row } = over.cell;
-        game.blepper.playDealSfx();
-        game.applyMove({
-          player: game.state.currentPlayer,
-          cardId: card.spec.id,
-          placement: { col, row },
-        });
+        {
+          let csi = game.currentScriptItem();
+          if (csi && csi.move) {
+            let p = csi.move.placement;
+            valid = p.col === col && p.row === row;
+          }
+        }
+
+        if (valid) {
+          game.blepper.playDealSfx();
+          game.applyMove({
+            player: game.state.currentPlayer,
+            cardId: card.spec.id,
+            placement: { col, row },
+          });
+        }
       }
       card.dragging = null;
       game.setDragTarget(null);
