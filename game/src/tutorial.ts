@@ -125,7 +125,7 @@ export const tutorialScript = (): GameScript => ({
     },
     {
       text:
-        "One last thing: the arrow cards.\nThey let you move any card on the board up or down.",
+        "One last thing: the arrow cards.\nThey let you move any card on the board up or down.\nIf it moves into another card, they swap positions.",
     },
     {
       text:
