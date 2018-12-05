@@ -200,21 +200,31 @@ export function mainMenu(state: AppState) {
 
   buttons.addChild(bctx.newLabel("bamb"));
 
-  let newGameButton = bctx.newButton(
-    Icon.Play,
-    "New game",
-    () => {
-      disappearUI(() => {
-        state.startGame({
-          ...baseGameSettings,
-          script: null,
-        });
+  let newGameButton = bctx.newButton(Icon.Play, "New game", () => {
+    disappearUI(() => {
+      if (!settings.playedTutorial) {
+        settings.playedTutorial = true;
+        state.saveSettings();
+
+        if (
+          confirm(
+            "We really recommend starting with the tutorial. Do you want to do that now?",
+          )
+        ) {
+          state.startGame({
+            ...baseGameSettings,
+            script: tutorialScript(),
+          });
+          return;
+        }
+      }
+
+      state.startGame({
+        ...baseGameSettings,
+        script: null,
       });
-    },
-    {
-      disabled: !settings.playedTutorial,
-    },
-  );
+    });
+  });
   buttons.addChild(newGameButton);
 
   let tutorialButton = bctx.newButton(
