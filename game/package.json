@@ -26,7 +26,7 @@
     "@types/underscore": "^1.8.9",
     "fuse-box": "^4.0.0",
     "prettier": "^1.15.3",
-    "terser": "^3.10.13",
+    "terser": "^4.8.1",
     "typescript": "^3.2.1"
   },
   "dependencies": {
