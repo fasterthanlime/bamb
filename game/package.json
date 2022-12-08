@@ -24,7 +24,7 @@
     "@types/howler": "^2.0.5",
     "@types/pixi.js": "^4.8.4",
     "@types/underscore": "^1.8.9",
-    "fuse-box": "^3.7.0-next.9",
+    "fuse-box": "^4.0.0",
     "prettier": "^1.15.3",
     "terser": "^3.10.13",
     "typescript": "^3.2.1"
